@@ -34,11 +34,11 @@
 const canvas = document.getElementById("sequence");
 const ctx = canvas.getContext("2d");
 
-const frameCount = 122; // 0000.jpg → 0120.jpg
+const frameCount = 121; // 0000.jpg → 0120.jpg
 const images = [];
 let currentFrame = 0;
 
-const getFramePath = i => `frames1/${(i + 120).toString().padStart(4,'0')}.jpg`;
+const getFramePath = i => `frames/${(i + 0).toString().padStart(4,'0')}.jpg`;
 
 function drawImageCover(img) {
   canvas.width = window.innerWidth;
@@ -112,4 +112,5 @@ hamburger.addEventListener("click", () => {
 });
 </script>
 </body>
+
 </html>
