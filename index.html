@@ -4,100 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>3D Animation with Responsive Nav</title>
-<style>
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #000;
-  font-family: Arial, sans-serif;
-  overflow-x: hidden;
-}
-
-/* Fullscreen background */
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 0;
-}
-
-/* Navigation bar */
-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: rgba(0,0,0,0.7);
-  padding: 1rem; /* only 1rem all around, no extra horizontal padding */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 10;
-}
-
-nav .logo {
-  color: white;
-  font-weight: bold;
-  font-size: 1.5rem;
-}
-
-nav .nav-links {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-
-nav .nav-links a {
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-nav .nav-links a:hover {
-  color: #d3ce3a;
-}
-
-/* Hamburger button */
-nav .hamburger {
-  display: none;
-  flex-direction: column;
-  cursor: pointer;
-  gap: 5px;
-}
-
-nav .hamburger div {
-  width: 25px;
-  height: 3px;
-  background-color: white;
-}
-
-/* Mobile responsive */
-@media (max-width: 500px) {
-  nav .nav-links {
-    display: none;
-    flex-direction: column;
-    width: 100%;
-    background: rgba(0,0,0,0.9);
-    padding: 1rem 2rem;
-    gap: 1rem;
-  }
-  nav .nav-links.show {
-    display: flex;
-  }
-  nav .hamburger {
-    display: flex;
-  }
-}
-</style>
+<link rel="stylesheet" href="global.css">
 </head>
 <body>
 
@@ -105,10 +12,10 @@ nav .hamburger div {
 <nav>
   <div class="logo">My3DSite</div>
   <div class="nav-links" id="navLinks">
-    <a href="#about">About</a>
-    <a href="#services">Services</a>
-    <a href="#clients">Clients</a>
-    <a href="#contact">Contact</a>
+    <a href="#portfolio">PORTFOLIO</a>
+    <a href="#services">PREISE</a>
+    <a href="#clients">CLIENTS</a>
+    <a href="#contact">KONTAKT</a>
   </div>
   <div class="hamburger" id="hamburger">
     <div></div>
@@ -121,17 +28,17 @@ nav .hamburger div {
 <canvas id="sequence"></canvas>
 
 <!-- Scroll spacer to allow scrolling through frames -->
-<div style="height:200vh;"></div>
+<div style="height:12200px;"></div>
 
 <script>
 const canvas = document.getElementById("sequence");
 const ctx = canvas.getContext("2d");
 
-const frameCount = 121; // 0000.jpg → 0120.jpg
+const frameCount = 122; // 0000.jpg → 0120.jpg
 const images = [];
 let currentFrame = 0;
 
-const getFramePath = i => `frames/${i.toString().padStart(4,'0')}.jpg`;
+const getFramePath = i => `frames1/${(i + 120).toString().padStart(4,'0')}.jpg`;
 
 function drawImageCover(img) {
   canvas.width = window.innerWidth;
@@ -147,6 +54,7 @@ function drawImageCover(img) {
 }
 
 function loadFrame(i) {
+  if (i < 0 || i >= frameCount) return;
   if (!images[i]) {
     const img = new Image();
     img.src = getFramePath(i);
@@ -158,8 +66,16 @@ function loadFrame(i) {
   return images[i];
 }
 
+// preload a range of frames around current
+function preloadNearbyFrames(center, range = 20) {
+  for (let offset = -range; offset <= range; offset++) {
+    loadFrame(center + offset);
+  }
+}
+
 // preload first frame
 loadFrame(0);
+preloadNearbyFrames(0, 20);
 
 window.addEventListener("scroll", () => {
   const scrollTop = window.scrollY;
@@ -173,9 +89,11 @@ window.addEventListener("scroll", () => {
   if (frameIndex !== currentFrame) {
     currentFrame = frameIndex;
     const img = loadFrame(currentFrame);
-    if (img.complete) {
+    if (img?.complete) {
       drawImageCover(img);
     }
+    // preload around current frame
+    preloadNearbyFrames(currentFrame, 20); // change 20 → 30 if you want more
   }
 });
 
