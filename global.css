@@ -1,0 +1,123 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  font-family: Segoe UI;
+  overflow-x: hidden;
+}
+
+/* Fullscreen background */
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+}
+
+/* Navigation bar */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.0);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+}
+
+nav .logo {
+  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+nav .nav-links {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+nav .nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  outline: none;
+}
+
+av .nav-links a {
+  user-select: none;            /* Prevent text selection */
+  -webkit-user-select: none;    /* Safari/Chrome */
+  -moz-user-select: none;       /* Firefox */
+  -ms-user-select: none;        /* IE/Edge */
+}
+
+nav .nav-links a:hover {
+  color: #d33a57;
+  scale: 110%;
+}
+nav .nav-links a:active {
+  color: yellow;
+}
+
+  
+/* Hamburger button */
+nav .hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 5px;
+}
+
+nav .hamburger div {
+  width: 25px;
+  height: 3px;
+  background-color: white;
+}
+
+/* Mobile responsive */
+@media (max-width: 700px) {
+   nav .nav-links {
+    position: absolute;        /* removed from flow, dropdown appears below nav */
+    top: 100%;                 /* just under the navbar */
+    left: 0;
+    width: 100%;
+    background: rgba(0,0,0,0.7);
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    gap: 1rem;
+    z-index: 9;
+
+    /* KEEP rendered — don't use display:none here anywhere */
+    display: flex;             /* ensure element is rendered so transitions work */
+    opacity: 0;                /* hidden initially */
+    transform: translateY(-12px);
+    pointer-events: none;      /* prevent clicks when hidden */
+
+    /* the easing/transition */
+    transition: opacity 360ms cubic-bezier(.22,.8,.2,1),
+                transform 360ms cubic-bezier(.22,.8,.2,1);
+    will-change: opacity, transform;
+  }
+
+  /* visible state — toggled by JS adding .show */
+  nav .nav-links.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;      /* enable clicks when visible */
+  }
+  nav .hamburger {
+    display: flex;
+  }
+}
