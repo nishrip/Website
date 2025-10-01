@@ -19,6 +19,7 @@ canvas {
   left: 0;
   width: 100vw;
   height: 100vh;
+  object-fit: cover; /* optional for image scaling */
   z-index: 0;
 }
 
@@ -121,3 +122,4 @@ nav .hamburger div {
     display: flex;
   }
 }
+
