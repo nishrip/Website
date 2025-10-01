@@ -40,9 +40,16 @@ let currentFrame = 0;
 
 const getFramePath = i => `frames/${(i + 0).toString().padStart(4,'0')}.jpg`;
 
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = window.innerWidth * dpr;
+  canvas.height = window.innerHeight * dpr;
+  canvas.style.width = window.innerWidth + "px";
+  canvas.style.height = window.innerHeight + "px";
+  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform each resize
+}
+
 function drawImageCover(img) {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
   const scale = Math.max(
     canvas.width / img.width,
     canvas.height / img.height
@@ -52,6 +59,11 @@ function drawImageCover(img) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
 }
+
+// Initialize + keep updated
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+window.addEventListener("orientationchange", resizeCanvas);
 
 function loadFrame(i) {
   if (i < 0 || i >= frameCount) return;
@@ -114,3 +126,4 @@ hamburger.addEventListener("click", () => {
 </body>
 
 </html>
+
