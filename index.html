@@ -40,21 +40,17 @@ let currentFrame = 0;
 
 const getFramePath = i => `frames3/${(i + 0).toString().padStart(4,'0')}.jpg`;
 
-const initialWidth = window.innerWidth;
-const initialHeight = window.innerHeight;
-
-canvas.width = initialWidth;
-canvas.height = initialHeight;
-
 function drawImageCover(img) {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
   const scale = Math.max(
-    initialWidth / img.width,
-    initialHeight / img.height
+    canvas.width / img.width,
+    canvas.height / img.height
   );
-  const x = (initialWidth/2) - (img.width/2)*scale;
-  const y = (initialHeight/2) - (img.height/2)*scale;
-  ctx.clearRect(0,0,initialWidth,initialHeight);
-  ctx.drawImage(img, x, y, img.width*scale, img.height*scale);
+  const x = (canvas.width / 2) - (img.width / 2) * scale;
+  const y = (canvas.height / 2) - (img.height / 2) * scale;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
 }
 
 function loadFrame(i) {
@@ -118,6 +114,7 @@ hamburger.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
