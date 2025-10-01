@@ -17,9 +17,10 @@ canvas {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover; /* optional for image scaling */
+  width: 100vw;       /* full width */
+  height: 100vh;      /* full initial viewport height */
+  max-height: 100%;
+  object-fit: cover;
   z-index: 0;
 }
 
@@ -122,4 +123,5 @@ nav .hamburger div {
     display: flex;
   }
 }
+
 
