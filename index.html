@@ -34,13 +34,15 @@
 const canvas = document.getElementById("sequence");
 const ctx = canvas.getContext("2d");
 
-const frameCount = 121; // 0000.jpg → 0120.jpg
+const frameCount = 120; // 0000.jpg → 0120.jpg
 const images = [];
 let currentFrame = 0;
 
-const getFramePath = i => `frames/${i.toString().padStart(4,'0')}.jpg`;
+const getFramePath = i => `frames3/${(i + 0).toString().padStart(4,'0')}.jpg`;
 
 function drawImageCover(img) {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
   const scale = Math.max(
     canvas.width / img.width,
     canvas.height / img.height
@@ -64,18 +66,17 @@ function loadFrame(i) {
   return images[i];
 }
 
-// Preload frames around current
+// preload a range of frames around current
 function preloadNearbyFrames(center, range = 20) {
   for (let offset = -range; offset <= range; offset++) {
     loadFrame(center + offset);
   }
 }
 
-// Preload first frame
+// preload first frame
 loadFrame(0);
 preloadNearbyFrames(0, 20);
 
-// Handle scroll
 window.addEventListener("scroll", () => {
   const scrollTop = window.scrollY;
   const maxScroll = document.body.scrollHeight - window.innerHeight;
@@ -91,26 +92,16 @@ window.addEventListener("scroll", () => {
     if (img?.complete) {
       drawImageCover(img);
     }
-    preloadNearbyFrames(currentFrame, 20);
+    // preload around current frame
+    preloadNearbyFrames(currentFrame, 20); // change 20 → 30 if you want more
   }
 });
 
-// Resize canvas correctly and redraw
-function resizeCanvasAndRedraw() {
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = window.innerWidth * dpr;
-  canvas.height = window.innerHeight * dpr;
-  canvas.style.width = window.innerWidth + "px";
-  canvas.style.height = window.innerHeight + "px";
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-
+window.addEventListener("resize", () => {
   if (images[currentFrame]?.complete) {
     drawImageCover(images[currentFrame]);
   }
-}
-
-window.addEventListener("resize", resizeCanvasAndRedraw);
-window.addEventListener("orientationchange", resizeCanvasAndRedraw);
+});
 
 // Hamburger menu toggle
 const hamburger = document.getElementById("hamburger");
@@ -119,12 +110,10 @@ const navLinks = document.getElementById("navLinks");
 hamburger.addEventListener("click", () => {
   navLinks.classList.toggle("show");
 });
-
-// Initial resize
-resizeCanvasAndRedraw();
 </script>
 </body>
 
 </html>
+
 
 
