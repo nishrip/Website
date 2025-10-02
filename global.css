@@ -30,7 +30,8 @@ nav {
   top: 0;
   left: 0;
   width: 100%;
-  background: rgba(0,0,0,0.0);
+  background: rgb(49, 49, 49);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   padding: 1rem;
   display: flex;
   justify-content: space-between;
@@ -53,6 +54,7 @@ nav .nav-links {
 nav .nav-links a {
   color: white;
   text-decoration: none;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.47);
   font-weight: bold;
   outline: none;
 }
@@ -123,5 +125,3 @@ nav .hamburger div {
     display: flex;
   }
 }
-
-
