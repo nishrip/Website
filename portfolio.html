@@ -6,8 +6,15 @@
 <title>Landing Page with Sections</title>
 <link rel="stylesheet" href="global.css">
 <style>
+#portfolio{
+  color: #d33a57;
+  text-decoration: none;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.47);
+  font-weight: bold;
+  outline: none;
+}
 
-/* Section bar */
+/* Section card */
 section {
   position: relative;
   margin: 50% auto; /* zentriert, behält vertical spacing */
@@ -56,7 +63,7 @@ section .content {
 <nav>
   <div class="logo"><a href="index.html">PREISE</a></div>
   <div class="nav-links" id="navLinks">
-    <a href="portfolio.html">PORTFOLIO</a>
+    <a id="portfolio" href="#">PORTFOLIO</a>
     <a href="#">PREISE</a>
     <a href="#">CLIENTS</a>
     <a href="#">KONTAKT</a>
@@ -105,12 +112,12 @@ section .content {
 // Canvas animation
 const canvas = document.getElementById("sequence");
 const ctx = canvas.getContext("2d");
-const frameCount = 120;
+const frameCount = 122;
 const images = [];
 let currentFrame = 0;
 let targetFrame = 0;
 
-const getFramePath = i => `frames3/${i.toString().padStart(4,'0')}.jpg`;
+const getFramePath = i => `frames1/${(i + 120).toString().padStart(4, '0')}.jpg`;
 
 function drawImageCover(img){
   canvas.width = window.innerWidth;

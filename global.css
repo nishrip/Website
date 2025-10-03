@@ -39,9 +39,12 @@ nav {
   z-index: 10;
 }
 
-nav .logo {
+nav .logo a{
   color: white;
+  text-decoration: none;
+  text-shadow: 0 0 3px rgba(8, 0, 0, 0.47);
   font-weight: bold;
+  outline: none;
   font-size: 1.5rem;
 }
 
@@ -51,15 +54,17 @@ nav .nav-links {
   flex-wrap: wrap;
 }
 
+
 nav .nav-links a {
   color: white;
   text-decoration: none;
-  text-shadow: 0 0 3px rgba(0, 0, 0, 0.47);
+  text-shadow: 0 0 3px rgba(8, 0, 0, 0.47);
   font-weight: bold;
   outline: none;
 }
 
-av .nav-links a {
+
+nav .nav-links a {
   user-select: none;            /* Prevent text selection */
   -webkit-user-select: none;    /* Safari/Chrome */
   -moz-user-select: none;       /* Firefox */
@@ -71,7 +76,7 @@ nav .nav-links a:hover {
   scale: 110%;
 }
 nav .nav-links a:active {
-  color: yellow;
+  scale: 100%;
 }
 
   
@@ -87,41 +92,81 @@ nav .hamburger div {
   width: 25px;
   height: 3px;
   background-color: white;
+  z-index: 9;
 }
 
 /* Mobile responsive */
 @media (max-width: 700px) {
-   nav .nav-links {
-    position: absolute;        /* removed from flow, dropdown appears below nav */
-    top: 100%;                 /* just under the navbar */
-    left: 0;
-    width: 100%;
-    background: rgba(0,0,0,0.7);
+  /* Hamburger button visible */
+  nav .hamburger {
+    display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 1rem;
-    gap: 1rem;
-    z-index: 9;
-
-    /* KEEP rendered — don't use display:none here anywhere */
-    display: flex;             /* ensure element is rendered so transitions work */
-    opacity: 0;                /* hidden initially */
-    transform: translateY(-12px);
-    pointer-events: none;      /* prevent clicks when hidden */
-
-    /* the easing/transition */
-    transition: opacity 360ms cubic-bezier(.22,.8,.2,1),
-                transform 360ms cubic-bezier(.22,.8,.2,1);
-    will-change: opacity, transform;
+    cursor: pointer;
+    gap: 5px;             /* spacing between lines */
+    z-index: 11;           /* above nav-links for clicks */
   }
 
-  /* visible state — toggled by JS adding .show */
+  nav .hamburger div {
+    width: 25px;           /* original line width */
+    height: 3px;           /* original line height */
+    background-color: white;
+    border-radius: 2px;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  /* Optional hover feedback on hamburger */
+  nav .hamburger:hover div {
+    background-color: #d33a57;
+  }
+  nav .hamburger:active div {
+    background-color: #a22a45;
+  }
+
+  /* Dropdown menu */
+  nav .nav-links {
+    position: absolute;
+    top: 100%;           
+    left: 0;
+    width: 100%;
+    background: rgb(106, 106, 106);
+    flex-direction: column;
+    align-items: stretch;  /* links fill full width */
+    padding: 0;            /* remove extra padding */
+    gap: 0;                /* remove gap between links */
+    z-index: 5;            
+    opacity: 0;
+    transform: translateY(-10px);  /* slide slightly up when hidden */
+    pointer-events: none;
+    transition: opacity 0.36s cubic-bezier(.22,.8,.2,1),
+                transform 0.36s cubic-bezier(.22,.8,.2,1);
+  }
+
+  /* Show state */
   nav .nav-links.show {
     opacity: 1;
     transform: translateY(0);
-    pointer-events: auto;      /* enable clicks when visible */
+    pointer-events: auto;
   }
-  nav .hamburger {
-    display: flex;
+
+  /* Links */
+  nav .nav-links a {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem 0;     /* comfortable vertical tap area */
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    user-select: none;
+    transition: background 0.2s;
+  }
+
+  nav .nav-links a:hover {
+    background: #d33a57;
+    color: white;
+  }
+
+  nav .nav-links a:active {
+    background: #a22a45;
   }
 }
