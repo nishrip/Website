@@ -512,7 +512,14 @@ function createAndShowPanoramaViewer() {
     // ensure page cannot scroll
     document.body.style.overflow = 'hidden';
 
-    // set starting panorama as in original code (index 7)
+    if (panoViewer) {
+    // erzwinge Renderer Resize und erstes Rendern
+    panoViewer.onWindowResize(); // passt Viewport an
+    requestAnimationFrame(() => {
+    panoViewer.render();
+    });
+  }
+    
     try { panoViewer.setPanorama(panoramas[7]); } catch (e) { /* ignore */ }
     try { panoViewer.tweenControlCenter(new THREE.Vector3(10, 1, 1), 0); } catch(e){}
 
@@ -818,7 +825,6 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
   }
 });
 </script>
-
 </body>
 </html>
 
