@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Landing Page with Sections</title>
 <link rel="stylesheet" href="global.css">
+<!-- Panolens / Three.js / Tween (für Panorama) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r110/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/panolens@0.12.0/build/panolens.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/Tween.min.js"></script>
+
 <style>
 #portfolio {
   color: #d33a57;
@@ -18,7 +23,7 @@
 section {
   position: relative;
   margin: 50% auto;
-  padding: 6rem 1rem;
+  padding: 1rem 1rem;
   width: 90%;
   max-width: 900px;
   background: rgba(0, 0, 0, 0.84);
@@ -39,14 +44,14 @@ section .mask {
 section .content {
   max-width: 900px;
   margin: 0 auto;
-  padding: 2rem 3rem;
+  padding: 2rem 1rem;
   color: #ffffff;
   text-align: center;
 }
 
 .video-wrapper {
   width: 100%;
-  height: 400px;
+  height: 300px;
   border-radius: 12px;
   overflow: hidden;
 }
@@ -59,7 +64,7 @@ section .content {
 /* Responsive */
 @media (max-width: 480px) {
   section {
-    padding: 4rem 1rem;
+    padding: rem 1rem;
     width: 95%;
     border-radius: 16px;
   }
@@ -121,6 +126,20 @@ section .content {
   cursor: pointer;
   z-index: 10;
 }
+
+/* Panorama overlay internal container should fill the panoOverlay area */
+#panoViewFullInner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #000;
+}
+#panoFadeOverlay {
+  position: absolute;
+  top:0; left:0; width:100%; height:100%;
+  background:black; opacity:0; pointer-events:none; z-index:20;
+  transition: opacity 0.3s ease;
+}
 </style>
 </head>
 <body>
@@ -160,7 +179,7 @@ section .content {
   <div class="mask">
     <div class="content">
       <h2>Vergleichsslider</h2>
-      <img id="sliderPreview" src="images/slider-preview.jpg" style="width:100%;border-radius:10px;cursor:pointer;">
+      <img id="sliderPreview" src="Vergleich.jpg" style="width:100%;border-radius:10px;cursor:pointer;">
     </div>
   </div>
 </section>
@@ -169,7 +188,7 @@ section .content {
   <div class="mask">
     <div class="content">
       <h2>360° Ansicht</h2>
-      <img id="panoPreview" src="images/pano-preview.jpg" style="width:100%;border-radius:10px;cursor:pointer;">
+      <img id="panoPreview" src="pano/pano1.jpg" style="width:100%;border-radius:10px;cursor:pointer;">
     </div>
   </div>
 </section>
@@ -200,11 +219,15 @@ section .content {
   </div>
 </div>
 
-<!-- Panorama Overlay -->
-<div id="panoOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;z-index:9999;">
+<!-- Panorama Overlay (full-screen) -->
+<div id="panoOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;z-index:150;">
   <button class="overlay-close" id="closePanoOverlay">×</button>
-  <div id="panoViewFull" style="width:90%;height:90%;margin:0 auto;position:relative;top:5%;background:#111;border-radius:10px;">
-    <!-- Hier PanoView einfügen -->
+  <div id="panoViewFull" style="width:100%;height:100%;margin:0;position:relative;top:0;left:0;background:#111;border-radius:0;">
+    <!-- inner container for Panolens viewer -->
+    <div id="panoViewFullInner">
+      <div id="panoFadeOverlay"></div>
+      <div id="panoContainer" style="width:100%;height:100%;position:relative;z-index:1;"></div>
+    </div>
   </div>
 </div>
 
@@ -414,12 +437,331 @@ function setInitialZoom(){
 window.addEventListener('resize', setInitialZoom);
 setInitialZoom();
 
-// ===== Panorama Overlay =====
+// ===== Panorama Overlay Integration (loads panoramas & hotspots from pano/ ) =====
 const panoOverlay = document.getElementById('panoOverlay');
-document.getElementById('panoPreview').addEventListener('click', ()=>{panoOverlay.style.display='block'; document.body.style.overflow='hidden';});
-document.getElementById('closePanoOverlay').addEventListener('click', ()=>{panoOverlay.style.display='none'; document.body.style.overflow='';});
+const panoContainer = document.getElementById('panoContainer');
+const panoFade = document.getElementById('panoFadeOverlay');
+let panoViewer = null;
+let panoramas = [];
+let panoInitialized = false;
+let panoLoader = null;
+let panoCamera = null;
+
+// Panorama file list (expects files in pano/ folder)
+const panoramaPaths = [
+  'pano/pano1.jpg',
+  'pano/pano2.jpg',
+  'pano/pano3.jpg',
+  'pano/pano4.jpg',
+  'pano/pano5.jpg',
+  'pano/pano6.jpg',
+  'pano/pano7.jpg',
+  'pano/add1.jpg',
+  'pano/add2.jpg'
+];
+
+function createPanoramaViewer() {
+  // create viewer inside panoContainer
+  panoViewer = new PANOLENS.Viewer({
+    container: panoContainer,
+    controlBar: true,
+    autoHideInfospot: false
+  });
+  panoCamera = panoViewer.getCamera();
+  panoramas = new Array(panoramaPaths.length);
+
+  panoLoader = new THREE.TextureLoader();
+  let loadedCount = 0;
+
+  function onTextureLoad(texture, index) {
+    // create panorama from the already-loaded image src (keeps the loader caching)
+    const pano = new PANOLENS.ImagePanorama(texture.image.src);
+    panoramas[index] = pano;
+    loadedCount++;
+
+    if (loadedCount === panoramaPaths.length) {
+      setupPanoramaHotspots();
+      panoViewer.add(...panoramas);
+      // start at panoramas[7] (like your original pano code)
+      try { panoViewer.setPanorama(panoramas[7]); } catch (e) {}
+      // small initial tween to set a view
+      try { panoViewer.tweenControlCenter(new THREE.Vector3(10, 1, 1), 0); } catch (e) {}
+    }
+  }
+
+  function preloadPanorama(index) {
+    panoLoader.load(
+      panoramaPaths[index],
+      texture => onTextureLoad(texture, index),
+      undefined,
+      err => {
+        console.error(`Failed to load ${panoramaPaths[index]}:`, err);
+        // still mark as loaded to avoid blocking if missing
+        panoramas[index] = new PANOLENS.ImagePanorama(panoramaPaths[index]);
+        loadedCount++;
+        if (loadedCount === panoramaPaths.length) {
+          setupPanoramaHotspots();
+          panoViewer.add(...panoramas);
+          try { panoViewer.setPanorama(panoramas[7]); } catch (e) {}
+        }
+      }
+    );
+  }
+
+  for (let i = 0; i < panoramaPaths.length; i++) {
+    preloadPanorama(i);
+  }
+
+  panoInitialized = true;
+}
+
+// Attach hotspots similar to your pano code, using pano/ for images
+function setupPanoramaHotspots() {
+  // create infospots (hotspot images loaded from pano/ folder)
+  const spotAddto1 = new PANOLENS.Infospot(250, 'pano/Hotspot18.png');
+  spotAddto1.position.set(4000, -200, -650);
+  const spotAddtoUp = new PANOLENS.Infospot(250, 'pano/UP7.png');
+  spotAddtoUp.position.set(5000, 4000, 500);
+
+  const spot1to2 = new PANOLENS.Infospot(250, 'pano/Hotspot.png');
+  spot1to2.position.set(4000, -150, -1500);
+  const spot1toAdd = new PANOLENS.Infospot(250, 'pano/Hotspot17.png');
+  spot1toAdd.position.set(-3200, -200, 4000);
+  const spot1toUP = new PANOLENS.Infospot(250, 'pano/UP.png');
+  spot1toUP.position.set(2000, 4000, -800);
+
+  const spot2to1 = new PANOLENS.Infospot(250, 'pano/Hotspot2.png');
+  spot2to1.position.set(-4000, -200, -1800);
+  const spot2to3 = new PANOLENS.Infospot(250, 'pano/Hotspot3.png');
+  spot2to3.position.set(4000, -200, -565);
+  const spot2toUP = new PANOLENS.Infospot(250, 'pano/UP1.png');
+  spot2toUP.position.set(-1000, 4000, -300);
+
+  const spot3to2 = new PANOLENS.Infospot(250, 'pano/Hotspot4.png');
+  spot3to2.position.set(4000, -200, -20);
+  const spot3to4 = new PANOLENS.Infospot(250, 'pano/Hotspot5.png');
+  spot3to4.position.set(-3000, -1800, 3000);
+  const spot3toUP = new PANOLENS.Infospot(250, 'pano/UP2.png');
+  spot3toUP.position.set(5000, 4000, 200);
+
+  const spot4to3 = new PANOLENS.Infospot(250, 'pano/Hotspot6.png');
+  spot4to3.position.set(3000, 1200, -3000);
+  const spot4to5 = new PANOLENS.Infospot(250, 'pano/Hotspot7.png');
+  spot4to5.position.set(350, -200, -5000);
+  const spot4toUP = new PANOLENS.Infospot(250, 'pano/UP3.png');
+  spot4toUP.position.set(4500, 5000, -2000);
+
+  const spot5to4 = new PANOLENS.Infospot(250, 'pano/Hotspot8.png');
+  spot5to4.position.set(-400, 150, 5000);
+  const spot5toAdd2 = new PANOLENS.Infospot(250, 'pano/Hotspot9.png');
+  spot5toAdd2.position.set(4000, -100, 500);
+  const spot5toUP = new PANOLENS.Infospot(250, 'pano/UP4.png');
+  spot5toUP.position.set(2000, 4500, 4000);
+
+  const spotAdd2to6 = new PANOLENS.Infospot(250, 'pano/Hotspot19.png');
+  spotAdd2to6.position.set(450, -100, -3500);
+  const spotAdd2to5 = new PANOLENS.Infospot(250, 'pano/Hotspot20.png');
+  spotAdd2to5.position.set(700, 0, 4000);
+  const spotAdd2toUP = new PANOLENS.Infospot(250, 'pano/Hotspot21.png');
+  spotAdd2toUP.position.set(4500, 5000, -100);
+
+  const spot6toAdd2 = new PANOLENS.Infospot(250, 'pano/Hotspot10.png');
+  spot6toAdd2.position.set(-650, -100, 3500);
+  const spot6to1 = new PANOLENS.Infospot(250, 'pano/Home.png');
+  spot6to1.position.set(750, 0, -3000);
+  const spot6toUP = new PANOLENS.Infospot(250, 'pano/UP5.png');
+  spot6toUP.position.set(3500, 4500, 1500);
+
+  const spotUPto1 = new PANOLENS.Infospot(250, 'pano/Hotspot11.png');
+  spotUPto1.position.set(-1200, -5000, 500);
+  const spotUPto2 = new PANOLENS.Infospot(250, 'pano/Hotspot12.png');
+  spotUPto2.position.set(-350, -5000, -600);
+  const spotUPto3 = new PANOLENS.Infospot(250, 'pano/Hotspot13.png');
+  spotUPto3.position.set(-100, -5000, -1550);
+  const spotUPto4 = new PANOLENS.Infospot(250, 'pano/Hotspot14.png');
+  spotUPto4.position.set(-450, -5000, -2250);
+  const spotUPto5 = new PANOLENS.Infospot(250, 'pano/Hotspot15.png');
+  spotUPto5.position.set(3100, -5000, -1100);
+  const spotUPto6 = new PANOLENS.Infospot(250, 'pano/Hotspot16.png');
+  spotUPto6.position.set(1200, -5000, 2200);
+  const spotUptoAdd = new PANOLENS.Infospot(250, 'pano/Hotspot22.png');
+  spotUptoAdd.position.set(-1500, -5000, 2050);
+  const spotUptoAdd2 = new PANOLENS.Infospot(250, 'pano/Hotspot23.png');
+  spotUptoAdd2.position.set(2065, -5000, 1200);
+
+  // Attach events (mirror your original mapping)
+  spot1to2.addEventListener('click', () => switchPanorama(spot1to2, panoramas[1], spot2to1));
+  spot1toUP.addEventListener('click', () => switchPanorama(spot1toUP, panoramas[6], spotUPto1));
+  spot1toAdd.addEventListener('click', () => switchPanorama(spot1toAdd, panoramas[7], spotAddto1));
+
+  spot2to1.addEventListener('click', () => switchPanorama(spot2to1, panoramas[0], spot1to2));
+  spot2to3.addEventListener('click', () => switchPanorama(spot2to3, panoramas[2], spot3to2));
+  spot2toUP.addEventListener('click', () => switchPanorama(spot2toUP, panoramas[6], spotUPto2));
+
+  spot3to2.addEventListener('click', () => switchPanorama(spot3to2, panoramas[1], spot2to3));
+  spot3to4.addEventListener('click', () => switchPanorama(spot3to4, panoramas[3], spot4to3));
+  spot3toUP.addEventListener('click', () => switchPanorama(spot3toUP, panoramas[6], spotUPto3));
+
+  spot4to3.addEventListener('click', () => switchPanorama(spot4to3, panoramas[2], spot3to4));
+  spot4to5.addEventListener('click', () => switchPanorama(spot4to5, panoramas[4], spot5to4));
+  spot4toUP.addEventListener('click', () => switchPanorama(spot4toUP, panoramas[6], spotUPto4));
+
+  spot5to4.addEventListener('click', () => switchPanorama(spot5to4, panoramas[3], spot4to5));
+  spot5toAdd2.addEventListener('click', () => switchPanorama(spot5toAdd2, panoramas[8], spotAdd2to5));
+  spot5toUP.addEventListener('click', () => switchPanorama(spot5toUP, panoramas[6], spotUPto5));
+
+  spot6toAdd2.addEventListener('click', () => switchPanorama(spot6toAdd2, panoramas[8], spotAdd2to6));
+  spot6to1.addEventListener('click', () => switchPanorama(spot6to1, panoramas[7], spotAddto1));
+  spot6toUP.addEventListener('click', () => switchPanorama(spot6toUP, panoramas[6], spotUPto6));
+
+  spotUPto1.addEventListener('click', () => switchPanorama(spotUPto1, panoramas[0], spot1toUP));
+  spotUPto2.addEventListener('click', () => switchPanorama(spotUPto2, panoramas[1], spot2toUP));
+  spotUPto3.addEventListener('click', () => switchPanorama(spotUPto3, panoramas[2], spot3toUP));
+  spotUPto4.addEventListener('click', () => switchPanorama(spotUPto4, panoramas[3], spot4toUP));
+  spotUPto5.addEventListener('click', () => switchPanorama(spotUPto5, panoramas[4], spot5toUP));
+  spotUPto6.addEventListener('click', () => switchPanorama(spotUPto6, panoramas[5], spot6toUP));
+  spotUptoAdd.addEventListener('click', () => switchPanorama(spotUptoAdd, panoramas[7], spotAddtoUp));
+  spotUptoAdd2.addEventListener('click', () => switchPanorama(spotUptoAdd2, panoramas[8], spotAdd2toUP));
+
+  spotAddto1.addEventListener('click', () => switchPanorama(spotAddto1, panoramas[0], spot1toAdd));
+  spotAddtoUp.addEventListener('click', () => switchPanorama(spotAddtoUp, panoramas[6], spotUptoAdd));
+
+  spotAdd2to5.addEventListener('click', () => switchPanorama(spotAdd2to5, panoramas[4], spot5toAdd2));
+  spotAdd2to6.addEventListener('click', () => switchPanorama(spotAdd2to6, panoramas[5], spot6toAdd2));
+  spotAdd2toUP.addEventListener('click', () => switchPanorama(spotAdd2toUP, panoramas[6], spotUptoAdd2));
+
+  // Add hotspots to panoramas
+  panoramas[0].add(spot1toAdd, spot1to2, spot1toUP);
+  panoramas[1].add(spot2to1, spot2to3, spot2toUP);
+  panoramas[2].add(spot3to2, spot3to4, spot3toUP);
+  panoramas[3].add(spot4to3, spot4to5, spot4toUP);
+  panoramas[4].add(spot5to4, spot5toAdd2, spot5toUP);
+  panoramas[5].add(spot6toAdd2, spot6to1, spot6toUP);
+  panoramas[6].add(spotUPto1, spotUPto2, spotUPto3, spotUPto4, spotUPto5, spotUPto6, spotUptoAdd, spotUptoAdd2);
+  panoramas[7].add(spotAddto1, spotAddtoUp);
+  panoramas[8].add(spotAdd2to5, spotAdd2to6, spotAdd2toUP);
+}
+
+// transitions & switch (same logic as your pano code)
+function switchPanorama(hotspot, targetPanorama, correspondingTargetHotspot) {
+  try {
+    panoViewer.tweenControlCenter(hotspot.position, 1000, TWEEN.Easing.Quadratic.InOut);
+  } catch(e){}
+
+  const startFov = panoCamera ? panoCamera.fov : 70;
+  const zoomDuration = 1000;
+  let startTime = null;
+
+  function animateZoom(time) {
+    if (!startTime) startTime = time;
+    const elapsed = time - startTime;
+    const progress = Math.min(elapsed / zoomDuration, 1);
+    if (panoCamera) {
+      panoCamera.fov = startFov + (30 - startFov) * progress;
+      panoCamera.updateProjectionMatrix();
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animateZoom);
+    } else {
+      panoFade.style.opacity = 1;
+
+      setTimeout(() => {
+        try { panoViewer.setPanorama(targetPanorama); } catch (e) {}
+        if (correspondingTargetHotspot && panoViewer) {
+          try { panoViewer.tweenControlCenter(correspondingTargetHotspot.position, 0); } catch (e) {}
+        }
+        if (panoCamera) {
+          panoCamera.fov = startFov;
+          panoCamera.updateProjectionMatrix();
+        }
+
+        setTimeout(() => {
+          panoFade.style.opacity = 0;
+        }, 300);
+      }, 500);
+    }
+  }
+
+  requestAnimationFrame(animateZoom);
+}
+
+// open panorama overlay on click
+document.getElementById('panoPreview').addEventListener('click', ()=>{
+  // show overlay full screen
+  panoOverlay.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+
+  // create viewer only on first open (or recreate if it was destroyed)
+  if (!panoInitialized) {
+    // small delay to ensure overlay layout is applied before creating the viewer
+    requestAnimationFrame(()=> {
+      try {
+        createPanoramaViewer();
+      } catch (e) {
+        console.error('Failed to init panorama viewer:', e);
+      }
+    });
+  } else {
+    // if already initialized, resize/update renderer if needed
+    try {
+      if (panoViewer && panoViewer.onWindowResize) panoViewer.onWindowResize();
+    } catch(e){}
+  }
+});
+
+// close panorama overlay and attempt to free memory
+document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
+  panoOverlay.style.display = 'none';
+  document.body.style.overflow = '';
+
+  // try to dispose/destroy viewer & free memory (best-effort)
+  try {
+    if (panoViewer) {
+      // remove panoramas from viewer
+      try {
+        panoViewer.remove(...panoramas);
+      } catch(e){}
+
+      // attempt to dispose renderer context if present
+      try {
+        if (panoViewer.renderer) {
+          // force WebGL context loss to free GPU memory (best-effort)
+          const gl = panoViewer.renderer.getContext && panoViewer.renderer.getContext();
+          if (gl && gl.getExtension) {
+            const loseExt = gl.getExtension('WEBGL_lose_context') || gl.getExtension('MOZ_WEBGL_lose_context') || gl.getExtension('WEBKIT_WEBGL_lose_context');
+            if (loseExt) {
+              loseExt.loseContext();
+            }
+          }
+          // clear DOM
+          if (panoViewer.renderer.domElement && panoViewer.renderer.domElement.parentNode) {
+            panoViewer.renderer.domElement.parentNode.removeChild(panoViewer.renderer.domElement);
+          }
+        }
+      } catch (e) {
+        console.warn('Error while disposing renderer:', e);
+      }
+
+      // clear container inner HTML (remove any remaining canvases)
+      panoContainer.innerHTML = '';
+
+      // clear arrays and references
+      panoramas.length = 0;
+      panoramas = [];
+      panoViewer = null;
+      panoCamera = null;
+      panoLoader = null;
+      panoInitialized = false;
+
+      // clear THREE caches if available
+      try { THREE.Cache && THREE.Cache.clear && THREE.Cache.clear(); } catch(e){}
+    }
+  } catch (e) {
+    console.warn('Error while destroying panorama viewer:', e);
+  }
+});
 </script>
 
 </body>
 </html>
-
