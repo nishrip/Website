@@ -5,141 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Landing Page with Sections</title>
 <link rel="stylesheet" href="global.css">
+<link rel="stylesheet" href="site1.css">
 <!-- Panolens / Three.js / Tween (für Panorama) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r110/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/panolens@0.12.0/build/panolens.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/Tween.min.js"></script>
 
 <style>
-#portfolio {
-  color: #d33a57;
-  text-decoration: none;
-  text-shadow: 0 0 3px rgba(0, 0, 0, 0.47);
-  font-weight: bold;
-  outline: none;
-}
-
-/* Section card */
-section {
-  position: relative;
-  margin: 50% auto;
-  padding: 1rem 1rem;
-  width: 90%;
-  max-width: 900px;
-  background: rgba(0, 0, 0, 0.84);
-  border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-  z-index: 1;
-}
-
-/* Mask container */
-section .mask {
-  position: relative;
-  overflow: hidden;
-  max-height: calc(100vh - 100px);
-  margin: 0 auto;
-}
-
-/* Actual text/content */
-section .content {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-  color: #ffffff;
-  text-align: center;
-}
-
-.video-wrapper {
-  width: 100%;
-  height: 300px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-.video-wrapper iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-  section {
-    padding: rem 1rem;
-    width: 95%;
-    border-radius: 16px;
-  }
-  section .content {
-    padding: 1.5rem 1rem;
-  }
-}
-
-/* --- Vergleichsslider Styles --- */
-.container {
-  position: relative;
-  width: 100%;
-  background: #000;
-  overflow: hidden;
-  touch-action: none;
-  border-radius: 10px;
-  aspect-ratio: 16/9;
-}
-.pane {
-  position: absolute;
-  top: 0; bottom: 0; width: 100%;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center center;
-  cursor: grab;
-  user-select: none;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-  transition: background-position 0.1s;
-}
-#left { z-index: 1; }
-#right { z-index: 2; clip-path: inset(0 0 0 50%); }
-#slider {
-  position: absolute;
-  top: 0; bottom: 0;
-  left: 50%;
-  width: 10px;
-  margin-left: -5px;
-  background: rgba(99, 168, 219, 0.53);
-  border-left: 2px solid rgba(255, 255, 255, 0.2);
-  border-right: 2px solid rgba(255, 255, 255, 0.2);
-  cursor: ew-resize;
-  z-index: 3;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-}
-#slider:hover {
-  background: rgba(255, 177, 0, 0.8);
-}
-
-/* Overlay close button */
-.overlay-close {
-  position: absolute;
-  top: 20px; right: 20px;
-  width: 40px; height: 40px;
-  border: none; border-radius: 50%;
-  background: rgba(255,255,255,0.7);
-  font-size: 24px;
-  cursor: pointer;
-  z-index: 10;
-}
-
-/* Panorama overlay internal container should fill the panoOverlay area */
-#panoViewFullInner {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  background: #000;
-}
-#panoFadeOverlay {
-  position: absolute;
-  top:0; left:0; width:100%; height:100%;
-  background:black; opacity:0; pointer-events:none; z-index:20;
-  transition: opacity 0.3s ease;
-}
+  
 </style>
 </head>
 <body>
@@ -168,7 +41,7 @@ section .content {
       <h2>Einzelfotos</h2>
       <div class="photo-gallery" style="position: relative;">
         <button id="prevPhoto" style="position:absolute;left:10px;top:50%;">&#10094;</button>
-        <img id="galleryImage" src="images/photo1.jpg" alt="Gallery" style="width:100%;border-radius:10px;">
+        <img id="galleryImage" src="images/NeuGarage_0001.png" alt="Gallery" style="width:100%;border-radius:10px;">
         <button id="nextPhoto" style="position:absolute;right:10px;top:50%;">&#10095;</button>
       </div>
     </div>
@@ -232,15 +105,28 @@ section .content {
 </div>
 
 <script>
-// ===== Canvas animation =====
+// =======================
+//  GLOBAL: Canvas Sequence
+// =======================
 const canvas = document.getElementById("sequence");
 const ctx = canvas.getContext("2d");
+
+// Frame sequence config (kept as in original)
 const frameCount = 122;
-const images = [];
+let images = []; // will contain Image objects or nulls
 let currentFrame = 0;
 let targetFrame = 0;
+let animationId = null;
+let scrollHandler = null; // named so we can remove/add
+let resizeHandler = null;
+let isCanvasInitialized = false;
+
+// helper path
 const getFramePath = i => `frames1/${(i + 120).toString().padStart(4, '0')}.jpg`;
+
+// draw (keeps same visuals)
 function drawImageCover(img){
+  // keep same behaviour: set canvas size per draw to keep same display
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   const scale = Math.max(canvas.width/img.width, canvas.height/img.height);
@@ -249,29 +135,27 @@ function drawImageCover(img){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.drawImage(img, x, y, img.width*scale, img.height*scale);
 }
+
+// load single frame if not present
 function loadFrame(i){
   if(i<0||i>=frameCount) return;
   if(!images[i]){
     const img = new Image();
     img.src = getFramePath(i);
-    img.onload = ()=>{if(i===currentFrame) drawImageCover(img);};
+    img.onload = ()=>{ if(i===currentFrame) drawImageCover(img); };
     images[i]=img;
   }
   return images[i];
 }
+
+// preload range around center
 function preloadNearbyFrames(center, range=20){
   for(let offset=-range; offset<=range; offset++){
     loadFrame(center+offset);
   }
 }
-loadFrame(0);
-preloadNearbyFrames(0,20);
-window.addEventListener('scroll', ()=>{
-  const scrollTop = window.scrollY;
-  const scrollHeight = document.body.scrollHeight - window.innerHeight;
-  const scrollFraction = scrollTop / scrollHeight;
-  targetFrame = Math.min(frameCount-1, Math.floor(scrollFraction*frameCount));
-});
+
+// animation loop uses requestAnimationFrame
 function animateFrames(){
   if(currentFrame!==targetFrame){
     const dir = targetFrame>currentFrame ? 1:-1;
@@ -280,22 +164,90 @@ function animateFrames(){
     if(img?.complete) drawImageCover(img);
     preloadNearbyFrames(currentFrame,20);
   }
-  requestAnimationFrame(animateFrames);
+  animationId = requestAnimationFrame(animateFrames);
 }
-animateFrames();
-window.addEventListener("resize", ()=>{ if(images[currentFrame]?.complete) drawImageCover(images[currentFrame]); });
 
-// ===== Hamburger menu =====
+// INIT canvas: adds listeners, starts preloading & animation
+function initCanvasSequence(){
+  if(isCanvasInitialized) return;
+  isCanvasInitialized = true;
+
+  // named scroll handler so we can remove it later
+  scrollHandler = () => {
+    const scrollTop = window.scrollY;
+    const scrollHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollFraction = scrollTop / (scrollHeight || 1);
+    targetFrame = Math.min(frameCount-1, Math.floor(scrollFraction*frameCount));
+  };
+
+  resizeHandler = () => { if(images[currentFrame]?.complete) drawImageCover(images[currentFrame]); };
+
+  window.addEventListener('scroll', scrollHandler, { passive: true });
+  window.addEventListener('resize', resizeHandler);
+
+  // initialize frames (keeps exact behavior: preload around 0)
+  images = new Array(frameCount);
+  currentFrame = 0;
+  targetFrame = 0;
+  loadFrame(0);
+  preloadNearbyFrames(0,20);
+
+  // start animation loop
+  if(!animationId) animateFrames();
+}
+
+// DESTROY canvas resources: cancels animation, removes listeners, clears image src references
+function destroyCanvasSequence(){
+  // stop animation
+  if(animationId){
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+  // remove listeners
+  try { if(scrollHandler) window.removeEventListener('scroll', scrollHandler, { passive: true }); } catch(e){}
+  try { if(resizeHandler) window.removeEventListener('resize', resizeHandler); } catch(e){}
+
+  // clear preloaded images to free memory (best-effort)
+  if(images && images.length){
+    for(let i=0;i<images.length;i++){
+      try {
+        if(images[i] && images[i].src){
+          // remove src and null ref so GC can collect
+          images[i].src = '';
+        }
+      } catch(e){}
+      images[i] = null;
+    }
+  }
+  images = [];
+  currentFrame = 0;
+  targetFrame = 0;
+  isCanvasInitialized = false;
+
+  // clear canvas drawing and size to release GPU memory region
+  try {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    canvas.width = 0;
+    canvas.height = 0;
+  } catch(e){}
+}
+
+// Start by initializing canvas as original page would
+initCanvasSequence();
+
+
+// =======================
+//  NAV / Gallery / Slider (unchanged behavior)
+// =======================
 document.getElementById("hamburger").addEventListener("click", ()=>document.getElementById("navLinks").classList.toggle("show"));
 
-// ===== Galerie Navigation =====
 const photos = ["images/photo1.jpg","images/photo2.jpg","images/photo3.jpg"];
 let photoIndex = 0;
 const galleryImage = document.getElementById("galleryImage");
 document.getElementById("nextPhoto").addEventListener("click", ()=>{photoIndex = (photoIndex + 1) % photos.length;galleryImage.src = photos[photoIndex];});
 document.getElementById("prevPhoto").addEventListener("click", ()=>{photoIndex = (photoIndex - 1 + photos.length) % photos.length;galleryImage.src = photos[photoIndex];});
 
-// ===== Slider Overlay Logic =====
+// Slider overlay existing logic - unchanged
 const sliderOverlay = document.getElementById('sliderOverlay');
 const overlayContainer = sliderOverlay.querySelector('.container');
 const sliderOverlayLeft = overlayContainer.querySelector('#left');
@@ -348,7 +300,7 @@ overlayContainer.addEventListener('touchmove', e=>{
 }, {passive:false});
 overlayContainer.addEventListener('touchend', e=>{isDraggingView=false;}, {passive:false});
 
-// ===== MOBILE-SPECIFIC MIN ZOOM FUNCTION =====
+// MOBILE-SPECIFIC MIN ZOOM FUNCTION
 function getMinScale() {
   return window.innerWidth < 700 ? 3.2 : 1; // Mobile minimum = 3.2
 }
@@ -428,7 +380,7 @@ function setInitialZoom(){
   } else {
     overlayContainer.style.aspectRatio = "16/9";
     overlayContainer.style.width = "90%";
-    scale = 1; // Mobile default zoom
+    scale = 1; // Desktop default zoom
   }
   posX = 0;
   posY = 0;
@@ -437,17 +389,23 @@ function setInitialZoom(){
 window.addEventListener('resize', setInitialZoom);
 setInitialZoom();
 
-// ===== Panorama Overlay Integration (loads panoramas & hotspots from pano/ ) =====
+
+// =======================
+// Panorama Integration - with resource switching
+// =======================
 const panoOverlay = document.getElementById('panoOverlay');
 const panoContainer = document.getElementById('panoContainer');
 const panoFade = document.getElementById('panoFadeOverlay');
+
 let panoViewer = null;
-let panoramas = [];
+let panoramas = [];        // will hold PANOLENS.ImagePanorama objects
 let panoInitialized = false;
 let panoLoader = null;
 let panoCamera = null;
+let panoTextures = [];     // store loaded textures (for disposal)
+let panoPreloadPromise = null;
 
-// Panorama file list (expects files in pano/ folder)
+// Panorama file list (keeps same filenames)
 const panoramaPaths = [
   'pano/pano1.jpg',
   'pano/pano2.jpg',
@@ -460,62 +418,115 @@ const panoramaPaths = [
   'pano/add2.jpg'
 ];
 
-function createPanoramaViewer() {
-  // create viewer inside panoContainer
-  panoViewer = new PANOLENS.Viewer({
-    container: panoContainer,
-    controlBar: true,
-    autoHideInfospot: false
+// createPanoramaViewer is refactored into two phases:
+// 1) preload all panorama textures (returns Promise resolved when done)
+// 2) create viewer, create PANOLENS.ImagePanorama instances from loaded texture.image.src,
+//    attach hotspots, add to viewer and show overlay
+
+// 1) Preload all panorama textures; returns Promise that resolves with array of textures (or placeholders).
+function preloadAllPanoramas() {
+  // If a preload is already in progress, return that promise
+  if (panoPreloadPromise) return panoPreloadPromise;
+
+  panoPreloadPromise = new Promise((resolve) => {
+    // Enable THREE cache to avoid re-decoding multiple times (helps during session)
+    try { if (THREE.Cache) THREE.Cache.enabled = true; } catch(e){}
+
+    panoLoader = new THREE.TextureLoader();
+    let loadedCount = 0;
+    const total = panoramaPaths.length;
+    panoTextures = new Array(total);
+
+    for (let i = 0; i < total; i++) {
+      ((index) => {
+        panoLoader.load(
+          panoramaPaths[index],
+          texture => {
+            panoTextures[index] = texture;
+            loadedCount++;
+            // If all done, resolve
+            if (loadedCount === total) resolve(panoTextures);
+          },
+          undefined,
+          err => {
+            console.error(`Failed to load ${panoramaPaths[index]}:`, err);
+            // Create a placeholder texture by creating ImagePanorama from path (Panolens will try to load)
+            panoTextures[index] = null; // mark null so we fallback later
+            loadedCount++;
+            if (loadedCount === total) resolve(panoTextures);
+          }
+        );
+      })(i);
+    }
   });
-  panoCamera = panoViewer.getCamera();
+
+  return panoPreloadPromise;
+}
+
+// create viewer and make it visible; assumes panoTextures is filled (some entries may be null)
+function createAndShowPanoramaViewer() {
+  // Build PANOLENS panoramas array from preloaded textures (or path fallback)
   panoramas = new Array(panoramaPaths.length);
 
-  panoLoader = new THREE.TextureLoader();
-  let loadedCount = 0;
-
-  function onTextureLoad(texture, index) {
-    // create panorama from the already-loaded image src (keeps the loader caching)
-    const pano = new PANOLENS.ImagePanorama(texture.image.src);
-    panoramas[index] = pano;
-    loadedCount++;
-
-    if (loadedCount === panoramaPaths.length) {
-      setupPanoramaHotspots();
-      panoViewer.add(...panoramas);
-      // start at panoramas[7] (like your original pano code)
-      try { panoViewer.setPanorama(panoramas[7]); } catch (e) {}
-      // small initial tween to set a view
-      try { panoViewer.tweenControlCenter(new THREE.Vector3(10, 1, 1), 0); } catch (e) {}
+  for (let i = 0; i < panoramaPaths.length; i++) {
+    try {
+      if (panoTextures[i] && panoTextures[i].image && panoTextures[i].image.src) {
+        panoramas[i] = new PANOLENS.ImagePanorama(panoTextures[i].image.src);
+      } else {
+        // fallback to direct path - Panolens will attempt its own load
+        panoramas[i] = new PANOLENS.ImagePanorama(panoramaPaths[i]);
+      }
+    } catch(e){
+      panoramas[i] = new PANOLENS.ImagePanorama(panoramaPaths[i]);
     }
   }
 
-  function preloadPanorama(index) {
-    panoLoader.load(
-      panoramaPaths[index],
-      texture => onTextureLoad(texture, index),
-      undefined,
-      err => {
-        console.error(`Failed to load ${panoramaPaths[index]}:`, err);
-        // still mark as loaded to avoid blocking if missing
-        panoramas[index] = new PANOLENS.ImagePanorama(panoramaPaths[index]);
-        loadedCount++;
-        if (loadedCount === panoramaPaths.length) {
-          setupPanoramaHotspots();
-          panoViewer.add(...panoramas);
-          try { panoViewer.setPanorama(panoramas[7]); } catch (e) {}
-        }
-      }
-    );
+  // create the viewer
+  try {
+    panoViewer = new PANOLENS.Viewer({
+      container: panoContainer,
+      controlBar: true,
+      autoHideInfospot: false
+    });
+  } catch(e){
+    console.error('Failed to create PANOLENS.Viewer:', e);
+    panoViewer = null;
   }
 
-  for (let i = 0; i < panoramaPaths.length; i++) {
-    preloadPanorama(i);
-  }
+  if (panoViewer) {
+    panoCamera = panoViewer.getCamera();
 
-  panoInitialized = true;
+    // Setup hotspots (same as original)
+    setupPanoramaHotspots();
+
+    // Add all panoramas to viewer
+    try {
+      panoViewer.add(...panoramas);
+    } catch(e){
+      // fallback: add individually
+      panoramas.forEach(p=> { try { panoViewer.add(p); } catch(_){} });
+    }
+
+    // Show overlay now that viewer and panoramas are ready
+    panoOverlay.style.display = 'block';
+    // ensure page cannot scroll
+    document.body.style.overflow = 'hidden';
+
+    // set starting panorama as in original code (index 7)
+    try { panoViewer.setPanorama(panoramas[7]); } catch (e) { /* ignore */ }
+    try { panoViewer.tweenControlCenter(new THREE.Vector3(10, 1, 1), 0); } catch(e){}
+
+    // mark initialized
+    panoInitialized = true;
+  } else {
+    // If viewer could not be created, show overlay as a fallback (so user sees something)
+    panoOverlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    panoInitialized = false;
+  }
 }
 
-// Attach hotspots similar to your pano code, using pano/ for images
+// Setup hotspots function is kept intact (uses panoramas[] array)
 function setupPanoramaHotspots() {
   // create infospots (hotspot images loaded from pano/ folder)
   const spotAddto1 = new PANOLENS.Infospot(250, 'pano/Hotspot18.png');
@@ -642,7 +653,7 @@ function setupPanoramaHotspots() {
   panoramas[8].add(spotAdd2to5, spotAdd2to6, spotAdd2toUP);
 }
 
-// transitions & switch (same logic as your pano code)
+// transitions & switch (keeps original behavior)
 function switchPanorama(hotspot, targetPanorama, correspondingTargetHotspot) {
   try {
     panoViewer.tweenControlCenter(hotspot.position, 1000, TWEEN.Easing.Quadratic.InOut);
@@ -686,82 +697,129 @@ function switchPanorama(hotspot, targetPanorama, correspondingTargetHotspot) {
   requestAnimationFrame(animateZoom);
 }
 
-// open panorama overlay on click
-document.getElementById('panoPreview').addEventListener('click', ()=>{
-  // show overlay full screen
-  panoOverlay.style.display = 'block';
-  document.body.style.overflow = 'hidden';
+// OPEN panorama workflow:
+// 1) Destroy canvas resources to free memory
+// 2) Preload all panorama textures
+// 3) Create viewer + panoramas + hotspots
+// 4) Show overlay when everything is ready
+document.getElementById('panoPreview').addEventListener('click', async ()=>{
+  // 1) Ensure overlay hidden, free main page resources
+  try {
+    // Hide overlay until everything is ready
+    panoOverlay.style.display = 'none';
+    // Free canvas & related resources BEFORE loading panoramas
+    destroyCanvasSequence();
+  } catch(e){ console.warn('Error while preparing for panorama:', e); }
 
-  // create viewer only on first open (or recreate if it was destroyed)
-  if (!panoInitialized) {
-    // small delay to ensure overlay layout is applied before creating the viewer
-    requestAnimationFrame(()=> {
-      try {
-        createPanoramaViewer();
-      } catch (e) {
-        console.error('Failed to init panorama viewer:', e);
-      }
-    });
-  } else {
-    // if already initialized, resize/update renderer if needed
-    try {
-      if (panoViewer && panoViewer.onWindowResize) panoViewer.onWindowResize();
-    } catch(e){}
+  // 2) Preload panoramas
+  try {
+    await preloadAllPanoramas();
+  } catch(e){
+    console.warn('Preload failed or partially failed:', e);
+  }
+
+  // 3) Now create viewer and show overlay only when it's set up
+  try {
+    createAndShowPanoramaViewer();
+  } catch(e){
+    console.error('Error while creating and showing panorama viewer:', e);
+    // in case of failure, still ensure overlay is shown so user isn't stuck
+    panoOverlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
   }
 });
 
-// close panorama overlay and attempt to free memory
+// CLOSE panorama workflow:
+// Destroy Panolens viewer, force context loss, clear textures & arrays, then re-init canvas
 document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
+  // hide overlay immediately for UX
   panoOverlay.style.display = 'none';
   document.body.style.overflow = '';
 
-  // try to dispose/destroy viewer & free memory (best-effort)
+  // destroy viewer and free resources
   try {
     if (panoViewer) {
       // remove panoramas from viewer
-      try {
-        panoViewer.remove(...panoramas);
-      } catch(e){}
+      try { panoViewer.remove(...panoramas); } catch(e){}
 
-      // attempt to dispose renderer context if present
+      // attempt to dispose renderer if present and lose context to free GPU memory
       try {
-        if (panoViewer.renderer) {
-          // force WebGL context loss to free GPU memory (best-effort)
-          const gl = panoViewer.renderer.getContext && panoViewer.renderer.getContext();
+        const renderer = panoViewer.renderer;
+        if (renderer) {
+          const gl = renderer.getContext && renderer.getContext();
+          // try dispose renderer if method exists
+          try { if(renderer.dispose) renderer.dispose(); } catch(e){}
           if (gl && gl.getExtension) {
             const loseExt = gl.getExtension('WEBGL_lose_context') || gl.getExtension('MOZ_WEBGL_lose_context') || gl.getExtension('WEBKIT_WEBGL_lose_context');
             if (loseExt) {
-              loseExt.loseContext();
+              try { loseExt.loseContext(); } catch(e){}
             }
           }
-          // clear DOM
-          if (panoViewer.renderer.domElement && panoViewer.renderer.domElement.parentNode) {
-            panoViewer.renderer.domElement.parentNode.removeChild(panoViewer.renderer.domElement);
-          }
+          // remove canvas/dom element
+          try { if (renderer.domElement && renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement); } catch(e){}
         }
       } catch (e) {
         console.warn('Error while disposing renderer:', e);
       }
-
-      // clear container inner HTML (remove any remaining canvases)
-      panoContainer.innerHTML = '';
-
-      // clear arrays and references
-      panoramas.length = 0;
-      panoramas = [];
-      panoViewer = null;
-      panoCamera = null;
-      panoLoader = null;
-      panoInitialized = false;
-
-      // clear THREE caches if available
-      try { THREE.Cache && THREE.Cache.clear && THREE.Cache.clear(); } catch(e){}
     }
   } catch (e) {
-    console.warn('Error while destroying panorama viewer:', e);
+    console.warn('Error while removing panoramas/viewer:', e);
+  }
+
+  // Clear Panolens/Three references and attempt to free memory
+  try {
+    // dispose panorama objects if API exists
+    if (panoramas && panoramas.length) {
+      panoramas.forEach(p => {
+        try { if(p.dispose) p.dispose(); } catch(e){}
+      });
+    }
+  } catch(e){}
+
+  // clear arrays and references
+  panoramas.length = 0;
+  panoramas = [];
+  panoViewer = null;
+  panoCamera = null;
+
+  // clear preloaded textures
+  try {
+    if (panoTextures && panoTextures.length) {
+      panoTextures.forEach(tex => {
+        try {
+          if (tex && tex.image && tex.image.src) {
+            // unset src for GC
+            tex.image.src = '';
+          }
+        } catch(e){}
+      });
+    }
+  } catch(e){}
+
+  panoTextures = [];
+
+  // clear THREE cache if available
+  try { if (THREE.Cache && THREE.Cache.clear) THREE.Cache.clear(); } catch(e){}
+
+  // reset the preload promise so next open will preload again
+  panoPreloadPromise = null;
+
+  // clear panoContainer DOM
+  try { panoContainer.innerHTML = ''; } catch(e){}
+
+  // finally re-init the canvas/sequence to restore main page resources
+  try {
+    // small timeout to let GPU/gl finish context loss
+    setTimeout(() => {
+      initCanvasSequence();
+    }, 100);
+  } catch(e){
+    console.warn('Error while reinitializing canvas sequence:', e);
   }
 });
 </script>
 
 </body>
 </html>
+
+
