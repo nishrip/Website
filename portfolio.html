@@ -6,7 +6,7 @@
 <title>Landing Page with Sections</title>
 <link rel="stylesheet" href="global.css">
 <style>
-#portfolio{
+#portfolio {
   color: #d33a57;
   text-decoration: none;
   text-shadow: 0 0 3px rgba(0, 0, 0, 0.47);
@@ -17,25 +17,25 @@
 /* Section card */
 section {
   position: relative;
-  margin: 50% auto; /* zentriert, behält vertical spacing */
-  padding: 6rem 1rem; /* horizontaler Abstand bei kleinen Screens */
-  width: 90%; /* sorgt dafür, dass auf kleinen Screens Abstand bleibt */
-  max-width: 900px; /* Karte wird auf großen Screens nicht breiter */
+  margin: 50% auto;
+  padding: 6rem 1rem;
+  width: 90%;
+  max-width: 900px;
   background: rgba(0, 0, 0, 0.84);
   border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
   z-index: 1;
 }
 
-/* Mask container (the "slit") */
+/* Mask container */
 section .mask {
   position: relative;
   overflow: hidden;
-  max-height: calc(100vh - 100px); /* slit size: viewport minus navbar margin */
+  max-height: calc(100vh - 100px);
   margin: 0 auto;
 }
 
-/* Actual text content */
+/* Actual text/content */
 section .content {
   max-width: 900px;
   margin: 0 auto;
@@ -44,16 +44,82 @@ section .content {
   text-align: center;
 }
 
-/* Responsive Anpassung */
+.video-wrapper {
+  width: 100%;
+  height: 400px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.video-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Responsive */
 @media (max-width: 480px) {
   section {
-    padding: 4rem 1rem; /* etwas weniger vertical padding */
-    width: 95%; /* noch mehr Abstand zum Rand */
+    padding: 4rem 1rem;
+    width: 95%;
     border-radius: 16px;
   }
   section .content {
-    padding: 1.5rem 1rem; /* Content auch horizontal nicht bündig */
+    padding: 1.5rem 1rem;
   }
+}
+
+/* --- Vergleichsslider Styles --- */
+.container {
+  position: relative;
+  width: 100%;
+  background: #000;
+  overflow: hidden;
+  touch-action: none;
+  border-radius: 10px;
+  aspect-ratio: 16/9;
+}
+.pane {
+  position: absolute;
+  top: 0; bottom: 0; width: 100%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  cursor: grab;
+  user-select: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-position 0.1s;
+}
+#left { z-index: 1; }
+#right { z-index: 2; clip-path: inset(0 0 0 50%); }
+#slider {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  width: 10px;
+  margin-left: -5px;
+  background: rgba(99, 168, 219, 0.53);
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+  border-right: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: ew-resize;
+  z-index: 3;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#slider:hover {
+  background: rgba(255, 177, 0, 0.8);
+}
+
+/* Overlay close button */
+.overlay-close {
+  position: absolute;
+  top: 20px; right: 20px;
+  width: 40px; height: 40px;
+  border: none; border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10;
 }
 </style>
 </head>
@@ -61,7 +127,7 @@ section .content {
 
 <!-- Navigation -->
 <nav>
-  <div class="logo"><a href="index.html">LOGO</a></div>
+  <div class="logo"><a href="index.html">PREISE</a></div>
   <div class="nav-links" id="navLinks">
     <a id="portfolio" href="#">PORTFOLIO</a>
     <a href="#">PREISE</a>
@@ -76,13 +142,16 @@ section .content {
 <!-- Background animation -->
 <canvas id="sequence"></canvas>
 
-<!-- Sections -->
+<!-- === Sections === -->
 <section id="section1">
   <div class="mask">
     <div class="content">
-      <h2>About Me</h2>
-      <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
-      <p>More text... keep scrolling to test slit cutoff effect at top/bottom.</p>
+      <h2>Einzelfotos</h2>
+      <div class="photo-gallery" style="position: relative;">
+        <button id="prevPhoto" style="position:absolute;left:10px;top:50%;">&#10094;</button>
+        <img id="galleryImage" src="images/photo1.jpg" alt="Gallery" style="width:100%;border-radius:10px;">
+        <button id="nextPhoto" style="position:absolute;right:10px;top:50%;">&#10095;</button>
+      </div>
     </div>
   </div>
 </section>
@@ -90,10 +159,8 @@ section .content {
 <section id="section2">
   <div class="mask">
     <div class="content">
-      <h2>Skills & Services</h2>
-      <p>Placeholder for describing what you offer and your expertise.</p>
-      <p>Extra text to demonstrate scrollable content inside the slit mask.</p>
-      <p>Even more filler text to see the cutoff working nicely.</p>
+      <h2>Vergleichsslider</h2>
+      <img id="sliderPreview" src="images/slider-preview.jpg" style="width:100%;border-radius:10px;cursor:pointer;">
     </div>
   </div>
 </section>
@@ -101,24 +168,55 @@ section .content {
 <section id="section3">
   <div class="mask">
     <div class="content">
-      <h2>Contact</h2>
-      <p>Placeholder for your contact info or call to action.</p>
-      <p>You can add forms or links here. They’ll also get clipped at the slit boundaries.</p>
+      <h2>360° Ansicht</h2>
+      <img id="panoPreview" src="images/pano-preview.jpg" style="width:100%;border-radius:10px;cursor:pointer;">
     </div>
   </div>
 </section>
 
+<section id="section4">
+  <div class="mask">
+    <div class="content">
+      <h2>Video</h2>
+      <div class="video-wrapper">
+        <iframe loading="lazy" title="YouTube video player"
+                src="https://www.youtube.com/embed/bLCyMWfFf4M"
+                style="border:0;"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Slider Overlay -->
+<div id="sliderOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;z-index:9999;">
+  <button class="overlay-close" id="closeSliderOverlay">×</button>
+  <div class="container" style="width:90%;max-width:1920px;margin:0 auto;position:relative;top:50%;transform:translateY(-50%);aspect-ratio:16/9;">
+    <div id="left" class="pane" style="background-image:url('V1.png');"></div>
+    <div id="right" class="pane" style="background-image:url('V2.png');"></div>
+    <div id="slider"></div>
+  </div>
+</div>
+
+<!-- Panorama Overlay -->
+<div id="panoOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;z-index:9999;">
+  <button class="overlay-close" id="closePanoOverlay">×</button>
+  <div id="panoViewFull" style="width:90%;height:90%;margin:0 auto;position:relative;top:5%;background:#111;border-radius:10px;">
+    <!-- Hier PanoView einfügen -->
+  </div>
+</div>
+
 <script>
-// Canvas animation
+// ===== Canvas animation =====
 const canvas = document.getElementById("sequence");
 const ctx = canvas.getContext("2d");
 const frameCount = 122;
 const images = [];
 let currentFrame = 0;
 let targetFrame = 0;
-
 const getFramePath = i => `frames1/${(i + 120).toString().padStart(4, '0')}.jpg`;
-
 function drawImageCover(img){
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -128,7 +226,6 @@ function drawImageCover(img){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.drawImage(img, x, y, img.width*scale, img.height*scale);
 }
-
 function loadFrame(i){
   if(i<0||i>=frameCount) return;
   if(!images[i]){
@@ -139,24 +236,19 @@ function loadFrame(i){
   }
   return images[i];
 }
-
 function preloadNearbyFrames(center, range=20){
   for(let offset=-range; offset<=range; offset++){
     loadFrame(center+offset);
   }
 }
-
 loadFrame(0);
 preloadNearbyFrames(0,20);
-
 window.addEventListener('scroll', ()=>{
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const scrollFraction = scrollTop / scrollHeight;
   targetFrame = Math.min(frameCount-1, Math.floor(scrollFraction*frameCount));
 });
-
-// Frame-by-frame animation loop
 function animateFrames(){
   if(currentFrame!==targetFrame){
     const dir = targetFrame>currentFrame ? 1:-1;
@@ -168,17 +260,123 @@ function animateFrames(){
   requestAnimationFrame(animateFrames);
 }
 animateFrames();
+window.addEventListener("resize", ()=>{ if(images[currentFrame]?.complete) drawImageCover(images[currentFrame]); });
 
-window.addEventListener("resize", ()=>{
-  if(images[currentFrame]?.complete) drawImageCover(images[currentFrame]);
+// ===== Hamburger menu =====
+document.getElementById("hamburger").addEventListener("click", ()=>document.getElementById("navLinks").classList.toggle("show"));
+
+// ===== Galerie Navigation =====
+const photos = ["images/photo1.jpg","images/photo2.jpg","images/photo3.jpg"];
+let photoIndex = 0;
+const galleryImage = document.getElementById("galleryImage");
+document.getElementById("nextPhoto").addEventListener("click", ()=>{photoIndex = (photoIndex + 1) % photos.length;galleryImage.src = photos[photoIndex];});
+document.getElementById("prevPhoto").addEventListener("click", ()=>{photoIndex = (photoIndex - 1 + photos.length) % photos.length;galleryImage.src = photos[photoIndex];});
+
+// ===== Slider Overlay Logic =====
+const sliderOverlay = document.getElementById('sliderOverlay');
+document.getElementById('sliderPreview').addEventListener('click', ()=>{
+  sliderOverlay.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+});
+document.getElementById('closeSliderOverlay').addEventListener('click', ()=>{
+  sliderOverlay.style.display = 'none';
+  document.body.style.overflow = '';
 });
 
-// Hamburger menu
-const hamburger = document.getElementById("hamburger");
-const navLinks = document.getElementById("navLinks");
-hamburger.addEventListener("click", ()=>navLinks.classList.toggle("show"));
+const overlayContainer = sliderOverlay.querySelector('.container');
+const sliderOverlayLeft = overlayContainer.querySelector('#left');
+const sliderOverlayRight = overlayContainer.querySelector('#right');
+const sliderHandle = overlayContainer.querySelector('#slider');
+let isDraggingSlider=false,isDraggingView=false,dragStartX=0,dragStartY=0,dragLastX=0,dragLastY=0,scale=1,posX=0,posY=0;
+
+function clamp(v,min,max){return Math.min(Math.max(v,min),max);}
+function updateSliderOverlay(x){
+  const rect = overlayContainer.getBoundingClientRect();
+  const offsetX = clamp(x - rect.left, 0, rect.width);
+  const percent = (offsetX / rect.width) * 100;
+  sliderHandle.style.left = percent + '%';
+  sliderOverlayRight.style.clipPath = `inset(0 0 0 ${percent}%)`;
+}
+sliderHandle.addEventListener('mousedown', e=>{isDraggingSlider=true;e.preventDefault();});
+document.addEventListener('mouseup', ()=>isDraggingSlider=false);
+document.addEventListener('mousemove', e=>{if(isDraggingSlider) updateSliderOverlay(e.clientX);});
+
+// Drag & Zoom overlay
+overlayContainer.addEventListener('mousedown', e=>{
+  if(isDraggingSlider) return;
+  isDraggingView=true;
+  dragStartX=e.clientX; dragStartY=e.clientY;
+  dragLastX=posX; dragLastY=posY;
+  overlayContainer.style.cursor='grabbing';
+  e.preventDefault();
+});
+document.addEventListener('mouseup', ()=>{if(isDraggingView){isDraggingView=false;overlayContainer.style.cursor='default';}});
+document.addEventListener('mousemove', e=>{
+  if(!isDraggingView) return;
+  e.preventDefault();
+  posX = dragLastX + (e.clientX - dragStartX);
+  posY = dragLastY + (e.clientY - dragStartY);
+  updateBackgroundPositionOverlay();
+});
+overlayContainer.addEventListener('wheel', e=>{
+  e.preventDefault();
+  const zoomAmount = -e.deltaY*0.0015;
+  scale = clamp(scale+zoomAmount,1,5);
+  updateBackgroundPositionOverlay();
+},{passive:false});
+
+function updateBackgroundPositionOverlay(){
+  const rect = overlayContainer.getBoundingClientRect();
+  const imgAspect = 1920/1080;
+  const containerAspect = rect.width/rect.height;
+  let bgWidth,bgHeight;
+
+  if(containerAspect>imgAspect){
+    bgHeight = rect.height*scale;
+    bgWidth = bgHeight*imgAspect;
+  }else{
+    bgWidth = rect.width*scale;
+    bgHeight = bgWidth/imgAspect;
+  }
+
+  const maxShiftX = (bgWidth - rect.width)/2;
+  const maxShiftY = (bgHeight - rect.height)/2;
+  posX = clamp(posX,-maxShiftX,maxShiftX);
+  posY = clamp(posY,-maxShiftY,maxShiftY);
+
+  const posXPercent = 50 - (posX/bgWidth*100);
+  const posYPercent = 50 - (posY/bgHeight*100);
+
+  sliderOverlayLeft.style.backgroundSize = `${bgWidth}px ${bgHeight}px`;
+  sliderOverlayRight.style.backgroundSize = `${bgWidth}px ${bgHeight}px`;
+  sliderOverlayLeft.style.backgroundPosition = `${posXPercent}% ${posYPercent}%`;
+  sliderOverlayRight.style.backgroundPosition = `${posXPercent}% ${posYPercent}%`;
+}
+
+// Set start zoom for mobile
+function setInitialZoom(){
+  if(window.innerWidth<700){
+    scale=window.innerHeight/(window.innerWidth/16*9); // fill vertically
+  }else{
+    scale=1;
+  }
+  posX=0;posY=0;
+  updateBackgroundPositionOverlay();
+}
+window.addEventListener('resize', setInitialZoom);
+setInitialZoom();
+
+// ===== Panorama Overlay =====
+const panoOverlay = document.getElementById('panoOverlay');
+document.getElementById('panoPreview').addEventListener('click', ()=>{
+  panoOverlay.style.display='block';
+  document.body.style.overflow='hidden';
+});
+document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
+  panoOverlay.style.display='none';
+  document.body.style.overflow='';
+});
 </script>
 
 </body>
-
 </html>
