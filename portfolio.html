@@ -514,11 +514,15 @@ function createAndShowPanoramaViewer() {
 
     if (panoViewer) {
     // erzwinge Renderer Resize und erstes Rendern
-    panoViewer.onWindowResize(); // passt Viewport an
-    requestAnimationFrame(() => {
-    panoViewer.render();
-    });
-  }
+      panoViewer.onWindowResize(); // passt Viewport an
+      requestAnimationFrame(() => {
+        panoViewer.render();
+      });
+    }
+    if ('ontouchstart' in window && panoViewer && panoContainer) {
+      const event = new Event('touchstart', { bubbles: true });
+      panoContainer.dispatchEvent(event);
+    }
     
     try { panoViewer.setPanorama(panoramas[7]); } catch (e) { /* ignore */ }
     try { panoViewer.tweenControlCenter(new THREE.Vector3(10, 1, 1), 0); } catch(e){}
@@ -827,5 +831,3 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
 </script>
 </body>
 </html>
-
-
