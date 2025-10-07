@@ -54,7 +54,7 @@ section .content {
 
 <!-- Navigation -->
 <nav>
-  <div class="logo"><a href="index.html">LOGO</a></div>
+  <div class="logo"><a href="index.html">PREISE</a></div>
   <div class="nav-links" id="navLinks">
     <a href="portfolio.html">PORTFOLIO</a>
     <a href="#">PREISE</a>
@@ -112,13 +112,19 @@ let targetFrame = 0;
 
 const getFramePath = i => `frames3/${i.toString().padStart(4,'0')}.jpg`;
 
+let canvasWidth = window.innerWidth;
+let canvasHeight = window.innerHeight;
+
+// initiale Canvas-Größe setzen
+canvas.width = canvasWidth;
+canvas.height = canvasHeight;
+
 function drawImageCover(img){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const scale = Math.max(canvas.width/img.width, canvas.height/img.height);
-  const x = (canvas.width/2)-(img.width/2)*scale;
-  const y = (canvas.height/2)-(img.height/2)*scale;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // Canvas-Größe wird nicht bei jedem Frame geändert
+  const scale = Math.max(canvasWidth / img.width, canvasHeight / img.height);
+  const x = (canvasWidth/2) - (img.width/2)*scale;
+  const y = (canvasHeight/2) - (img.height/2)*scale;
+  ctx.clearRect(0,0,canvasWidth,canvasHeight);
   ctx.drawImage(img, x, y, img.width*scale, img.height*scale);
 }
 
@@ -162,9 +168,17 @@ function animateFrames(){
 }
 animateFrames();
 
-window.addEventListener("resize", ()=>{
+function updateCanvasSize(){
+  canvasWidth = window.innerWidth;
+  canvasHeight = window.innerHeight;
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
   if(images[currentFrame]?.complete) drawImageCover(images[currentFrame]);
-});
+}
+
+// Resize und OrientationChange abfangen
+window.addEventListener("resize", updateCanvasSize);
+window.addEventListener("orientationchange", updateCanvasSize);
 
 // Hamburger menu
 const hamburger = document.getElementById("hamburger");
@@ -173,5 +187,4 @@ hamburger.addEventListener("click", ()=>navLinks.classList.toggle("show"));
 </script>
 
 </body>
-
 </html>
