@@ -149,9 +149,18 @@ function loadFrame(i){
 }
 
 // preload range around center
-function preloadNearbyFrames(center, range=20){
+function preloadNearbyFrames(center, range=10){
   for(let offset=-range; offset<=range; offset++){
-    loadFrame(center+offset);
+    const idx = center + offset;
+    if(idx>=0 && idx<frameCount) loadFrame(idx);
+  }
+
+  // Speicher entlasten: alte Frames freigeben
+  for(let i=0; i<images.length; i++){
+    if(Math.abs(i-center) > range && images[i]){
+      images[i].src = '';
+      images[i] = null;
+    }
   }
 }
 
@@ -173,11 +182,16 @@ function initCanvasSequence(){
   isCanvasInitialized = true;
 
   // named scroll handler so we can remove it later
+ let lastScrollTime = 0;
   scrollHandler = () => {
+    const now = performance.now();
+    if (now - lastScrollTime < 16) return; // max 60fps
+    lastScrollTime = now;
+
     const scrollTop = window.scrollY;
     const scrollHeight = document.body.scrollHeight - window.innerHeight;
     const scrollFraction = scrollTop / (scrollHeight || 1);
-    targetFrame = Math.min(frameCount-1, Math.floor(scrollFraction*frameCount));
+    targetFrame = Math.min(frameCount-1, Math.floor(scrollFraction * frameCount));
   };
 
   resizeHandler = () => { if(images[currentFrame]?.complete) drawImageCover(images[currentFrame]); };
@@ -767,7 +781,10 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
             }
           }
           // remove canvas/dom element
-          try { if (renderer.domElement && renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement); } catch(e){}
+          try { 
+            if (renderer.domElement && renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
+            if (renderer.forceContextLoss) renderer.forceContextLoss();
+          } catch(e){}
         }
       } catch (e) {
         console.warn('Error while disposing renderer:', e);
