@@ -10,25 +10,25 @@
 /* Section bar */
 section {
   position: relative;
-  margin: 50% auto; /* zentriert, behält vertical spacing */
-  padding: 6rem 1rem; /* horizontaler Abstand bei kleinen Screens */
-  width: 90%; /* sorgt dafür, dass auf kleinen Screens Abstand bleibt */
-  max-width: 900px; /* Karte wird auf großen Screens nicht breiter */
+  margin: 50% auto;
+  padding: 6rem 1rem;
+  width: 90%;
+  max-width: 900px;
   background: rgba(0, 0, 0, 0.84);
   border-radius: 20px;
   box-shadow: 0 8px 25px rgba(0,0,0,0.4);
   z-index: 1;
 }
 
-/* Mask container (the "slit") */
+/* Mask container */
 section .mask {
   position: relative;
   overflow: hidden;
-  max-height: calc(100vh - 100px); /* slit size: viewport minus navbar margin */
+  max-height: calc(100vh - 100px);
   margin: 0 auto;
 }
 
-/* Actual text content */
+/* Content */
 section .content {
   max-width: 900px;
   margin: 0 auto;
@@ -37,15 +37,15 @@ section .content {
   text-align: center;
 }
 
-/* Responsive Anpassung */
+/* Responsive */
 @media (max-width: 480px) {
   section {
-    padding: 4rem 1rem; /* etwas weniger vertical padding */
-    width: 95%; /* noch mehr Abstand zum Rand */
+    padding: 4rem 1rem;
+    width: 95%;
     border-radius: 16px;
   }
   section .content {
-    padding: 1.5rem 1rem; /* Content auch horizontal nicht bündig */
+    padding: 1.5rem 1rem;
   }
 }
 </style>
@@ -74,7 +74,7 @@ section .content {
   <div class="mask">
     <div class="content">
       <h2>About Me</h2>
-      <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
+      <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr...</p>
       <p>More text... keep scrolling to test slit cutoff effect at top/bottom.</p>
     </div>
   </div>
@@ -102,7 +102,7 @@ section .content {
 </section>
 
 <script>
-// Canvas animation
+// Canvas animation setup
 const canvas = document.getElementById("sequence");
 const ctx = canvas.getContext("2d");
 const frameCount = 120;
@@ -110,95 +110,90 @@ const images = [];
 let currentFrame = 0;
 let targetFrame = 0;
 
+// Frame path generator
 const getFramePath = i => `frames3/${i.toString().padStart(4,'0')}.jpg`;
 
-let canvasWidth = window.innerWidth;
-let canvasHeight = window.innerHeight;
+// --- Device-based maximum screen size --- //
+const deviceScreenWidth = window.screen.width;
+const deviceScreenHeight = window.screen.height;
 
-// initiale Canvas-Größe setzen
+// Canvas wird auf die maximale Displaygröße fixiert (+ Puffer)
+let canvasWidth = deviceScreenWidth;
+let canvasHeight = deviceScreenHeight + 100; // +100px extra buffer unten
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 
-function drawImageCover(img){
-  // Canvas-Größe wird nicht bei jedem Frame geändert
+function drawImageCover(img) {
   const scale = Math.max(canvasWidth / img.width, canvasHeight / img.height);
-  const x = (canvasWidth/2) - (img.width/2)*scale;
-  const y = (canvasHeight/2) - (img.height/2)*scale;
-  ctx.clearRect(0,0,canvasWidth,canvasHeight);
-  ctx.drawImage(img, x, y, img.width*scale, img.height*scale);
+  const x = (canvasWidth / 2) - (img.width / 2) * scale;
+  const y = (canvasHeight / 2) - (img.height / 2) * scale;
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
 }
 
-function loadFrame(i){
-  if(i<0||i>=frameCount) return;
-  if(!images[i]){
+function loadFrame(i) {
+  if (i < 0 || i >= frameCount) return;
+  if (!images[i]) {
     const img = new Image();
     img.src = getFramePath(i);
-    img.onload = ()=>{if(i===currentFrame) drawImageCover(img);};
-    images[i]=img;
+    img.onload = () => { if (i === currentFrame) drawImageCover(img); };
+    images[i] = img;
   }
   return images[i];
 }
 
-function preloadNearbyFrames(center, range=20){
-  for(let offset=-range; offset<=range; offset++){
-    loadFrame(center+offset);
+function preloadNearbyFrames(center, range = 20) {
+  for (let offset = -range; offset <= range; offset++) {
+    loadFrame(center + offset);
   }
 }
 
 loadFrame(0);
-preloadNearbyFrames(0,20);
+preloadNearbyFrames(0, 20);
 
-window.addEventListener('scroll', ()=>{
+window.addEventListener("scroll", () => {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const scrollFraction = scrollTop / scrollHeight;
-  targetFrame = Math.min(frameCount-1, Math.floor(scrollFraction*frameCount));
+  targetFrame = Math.min(frameCount - 1, Math.floor(scrollFraction * frameCount));
 });
 
-// Frame-by-frame animation loop
-function animateFrames(){
-  if(currentFrame!==targetFrame){
-    const dir = targetFrame>currentFrame ? 1:-1;
+function animateFrames() {
+  if (currentFrame !== targetFrame) {
+    const dir = targetFrame > currentFrame ? 1 : -1;
     currentFrame += dir;
     const img = loadFrame(currentFrame);
-    if(img?.complete) drawImageCover(img);
-    preloadNearbyFrames(currentFrame,20);
+    if (img?.complete) drawImageCover(img);
+    preloadNearbyFrames(currentFrame, 20);
   }
   requestAnimationFrame(animateFrames);
 }
 animateFrames();
 
-let lastWidth = window.innerWidth;
-let lastHeight = window.innerHeight;
+// --- Handle echte Resizes (Rotation, Desktop Resize) --- //
+let lastOrientation = window.orientation || 0;
 
-function updateCanvasSize(){
-  const newWidth = window.innerWidth;
-  const newHeight = window.innerHeight;
+function updateCanvasSize() {
+  const newOrientation = window.orientation || 0;
 
-  // Nur wirkliches Resize berücksichtigen (mehr als 50px Unterschied)
-  if(Math.abs(newWidth - lastWidth) < 50 && Math.abs(newHeight - lastHeight) < 50){
-    return; // kein echtes Resize, z.B. nur URL-Leiste, nichts tun
+  // Nur reagieren bei echter Drehung oder Desktop-Resize
+  if (window.innerWidth !== canvasWidth || window.innerHeight !== canvasHeight || newOrientation !== lastOrientation) {
+    lastOrientation = newOrientation;
+    canvasWidth = window.innerWidth;
+    canvasHeight = window.innerHeight + 100;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    if (images[currentFrame]?.complete) drawImageCover(images[currentFrame]);
   }
-
-  lastWidth = newWidth;
-  lastHeight = newHeight;
-
-  canvasWidth = newWidth;
-  canvasHeight = newHeight;
-  canvas.width = canvasWidth;
-  canvas.height = canvasHeight;
-
-  if(images[currentFrame]?.complete) drawImageCover(images[currentFrame]);
 }
 
-// Resize und OrientationChange abfangen
-window.addEventListener("resize", updateCanvasSize);
 window.addEventListener("orientationchange", updateCanvasSize);
+window.addEventListener("resize", updateCanvasSize);
 
 // Hamburger menu
 const hamburger = document.getElementById("hamburger");
 const navLinks = document.getElementById("navLinks");
-hamburger.addEventListener("click", ()=>navLinks.classList.toggle("show"));
+hamburger.addEventListener("click", () => navLinks.classList.toggle("show"));
 </script>
 
 </body>
