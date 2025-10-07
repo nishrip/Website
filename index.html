@@ -168,11 +168,26 @@ function animateFrames(){
 }
 animateFrames();
 
+let lastWidth = window.innerWidth;
+let lastHeight = window.innerHeight;
+
 function updateCanvasSize(){
-  canvasWidth = window.innerWidth;
-  canvasHeight = window.innerHeight;
+  const newWidth = window.innerWidth;
+  const newHeight = window.innerHeight;
+
+  // Nur wirkliches Resize berücksichtigen (mehr als 50px Unterschied)
+  if(Math.abs(newWidth - lastWidth) < 50 && Math.abs(newHeight - lastHeight) < 50){
+    return; // kein echtes Resize, z.B. nur URL-Leiste, nichts tun
+  }
+
+  lastWidth = newWidth;
+  lastHeight = newHeight;
+
+  canvasWidth = newWidth;
+  canvasHeight = newHeight;
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
+
   if(images[currentFrame]?.complete) drawImageCover(images[currentFrame]);
 }
 
