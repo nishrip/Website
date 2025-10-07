@@ -246,8 +246,51 @@ function destroyCanvasSequence(){
   } catch(e){}
 }
 
+
+// DESTROY YouTube Video Ressourcen
+
+function destroyYouTubePlayer() {
+  const playerContainer = document.getElementById('youtubePlayer');
+  if (playerContainer) {
+    // stoppt Video + entfernt Stream
+    const iframe = playerContainer.querySelector('iframe');
+    if (iframe) {
+      iframe.src = '';
+    }
+    // DOM-Inhalt leeren
+    playerContainer.innerHTML = '';
+  }
+}
+  
+// DESTROY Vergleichs-Slider Ressourcen
+
+// =======================
+// Slider: Weicher Destroy / Reinitialisierung
+// =======================
+function softDestroySliderOverlay() {
+  const sliderOverlay = document.getElementById('sliderOverlay');
+  if (!sliderOverlay) return;
+
+  // Overlay ausblenden
+  sliderOverlay.style.display = 'none';
+  document.body.style.overflow = '';
+
+  // Hintergrundbilder freigeben
+  sliderOverlay.querySelector('#left').style.backgroundImage = '';
+  sliderOverlay.querySelector('#right').style.backgroundImage = '';
+
+  // Zoom / Drag zurücksetzen
+  scale = 1;
+  posX = 0;
+  posY = 0;
+
+  // Slider Handle Position zurücksetzen
+  sliderHandle.style.left = '50%';
+  sliderOverlayRight.style.clipPath = 'inset(0 0 0 50%)';
+}
+
 // Start by initializing canvas as original page would
-initCanvasSequence();
+initCanvasSequence(); // gpt schaue hier, warum ist die funktion hier ausgeführt?
 
 
 // =======================
@@ -728,27 +771,27 @@ function switchPanorama(hotspot, targetPanorama, correspondingTargetHotspot) {
 // 3) Create viewer + panoramas + hotspots
 // 4) Show overlay when everything is ready
 document.getElementById('panoPreview').addEventListener('click', async ()=>{
-  // 1) Ensure overlay hidden, free main page resources
+  // 1) Freigeben aller sonstigen Ressourcen vor Panolens
   try {
-    // Hide overlay until everything is ready
-    panoOverlay.style.display = 'none';
-    // Free canvas & related resources BEFORE loading panoramas
     destroyCanvasSequence();
-  } catch(e){ console.warn('Error while preparing for panorama:', e); }
+    destroyYouTubePlayer();
+    softDestroySliderOverlay();
+  } catch(e){
+    console.warn('Fehler beim Freigeben von Ressourcen vor Panolens:', e);
+  }
 
-  // 2) Preload panoramas
+  // 2) Panoramen preloaden
   try {
     await preloadAllPanoramas();
   } catch(e){
-    console.warn('Preload failed or partially failed:', e);
+    console.warn('Preload der Panoramen fehlgeschlagen:', e);
   }
 
-  // 3) Now create viewer and show overlay only when it's set up
+  // 3) Panolens Viewer erstellen
   try {
     createAndShowPanoramaViewer();
   } catch(e){
-    console.error('Error while creating and showing panorama viewer:', e);
-    // in case of failure, still ensure overlay is shown so user isn't stuck
+    console.error('Fehler beim Erstellen des Panolens-Viewers:', e);
     panoOverlay.style.display = 'block';
     document.body.style.overflow = 'hidden';
   }
@@ -840,6 +883,15 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
     // small timeout to let GPU/gl finish context loss
     setTimeout(() => {
       initCanvasSequence();
+      // Slider-Bilder zurücksetzen wie beim ersten Klick
+      sliderOverlayLeft.style.backgroundImage = 'url("V1.png")';
+      sliderOverlayRight.style.backgroundImage = 'url("V2.png")';
+      sliderHandle.style.left = '50%';
+      sliderOverlayRight.style.clipPath = 'inset(0 0 0 50%)';
+      scale = window.innerWidth < 700 ? 3.2 : 1;
+      posX = 0;
+      posY = 0;
+      updateBackgroundPositionOverlay();
     }, 100);
   } catch(e){
     console.warn('Error while reinitializing canvas sequence:', e);
@@ -848,3 +900,5 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
 </script>
 </body>
 </html>
+
+
