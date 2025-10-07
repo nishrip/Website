@@ -245,25 +245,40 @@ function destroyCanvasSequence(){
     canvas.height = 0;
   } catch(e){}
 }
+  
+// Stoppt das YouTube-Video, um Ressourcen freizugeben
+function resetYouTubePlayer() {
+  const wrapper = document.querySelector('.video-wrapper');
+  if (!wrapper) return;
 
-
-// DESTROY YouTube Video Ressourcen
-
-function destroyYouTubePlayer() {
-  const playerContainer = document.getElementById('youtubePlayer');
-  if (playerContainer) {
-    // stoppt Video + entfernt Stream
-    const iframe = playerContainer.querySelector('iframe');
-    if (iframe) {
-      iframe.src = '';
-    }
-    // DOM-Inhalt leeren
-    playerContainer.innerHTML = '';
+  const oldIframe = wrapper.querySelector('iframe');
+  if (oldIframe) {
+    // Speichere src, um es später wiederherzustellen
+    wrapper.dataset.originalSrc = oldIframe.src;
+    oldIframe.remove(); // iframe komplett entfernen
   }
 }
-  
-// DESTROY Vergleichs-Slider Ressourcen
 
+function restoreYouTubePlayer() {
+  const wrapper = document.querySelector('.video-wrapper');
+  if (!wrapper) return;
+
+  const existingIframe = wrapper.querySelector('iframe');
+  if (existingIframe) return; // schon wiederhergestellt
+
+  const src = wrapper.dataset.originalSrc || "https://www.youtube.com/embed/bLCyMWfFf4M";
+
+  const newIframe = document.createElement('iframe');
+  newIframe.loading = 'lazy';
+  newIframe.title = 'YouTube video player';
+  newIframe.src = src;
+  newIframe.style.border = '0';
+  newIframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+  newIframe.allowFullscreen = true;
+
+  wrapper.appendChild(newIframe);
+}
+  
 // =======================
 // Slider: Weicher Destroy / Reinitialisierung
 // =======================
@@ -774,7 +789,7 @@ document.getElementById('panoPreview').addEventListener('click', async ()=>{
   // 1) Freigeben aller sonstigen Ressourcen vor Panolens
   try {
     destroyCanvasSequence();
-    destroyYouTubePlayer();
+    resetYouTubePlayer();
     softDestroySliderOverlay();
   } catch(e){
     console.warn('Fehler beim Freigeben von Ressourcen vor Panolens:', e);
@@ -883,6 +898,7 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
     // small timeout to let GPU/gl finish context loss
     setTimeout(() => {
       initCanvasSequence();
+      restoreYouTubePlayer();
       // Slider-Bilder zurücksetzen wie beim ersten Klick
       sliderOverlayLeft.style.backgroundImage = 'url("V1.png")';
       sliderOverlayRight.style.backgroundImage = 'url("V2.png")';
