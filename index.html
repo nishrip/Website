@@ -114,22 +114,24 @@ const images = [];
 let currentFrame = 0;
 let targetFrame = 0;
 
-// --- Canvas initial setup ---
-const extraPadding = 200; // Platz unten für Reveal
-const canvasWidth = window.screen.width;
-const canvasHeight = window.screen.height + extraPadding;
-
-canvas.width = canvasWidth;
-canvas.height = canvasHeight;
+// --- Dynamische Canvas-Höhe basierend auf Viewport + Browser-UI ---
+function updateCanvasSize() {
+  // Visual Viewport Höhe = Viewport minus URL-Leiste
+  const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  const extraPadding = 200; // optionaler Puffer, falls nötig
+  canvas.width = window.innerWidth;
+  canvas.height = viewportHeight + extraPadding;
+  if (images[currentFrame]?.complete) drawImageCover(images[currentFrame]);
+}
 
 // Frame path generator
 const getFramePath = i => `frames3/${i.toString().padStart(4, '0')}.jpg`;
 
 function drawImageCover(img) {
-  const scale = Math.max(canvasWidth / img.width, canvasHeight / img.height);
-  const x = (canvasWidth / 2) - (img.width / 2) * scale;
+  const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+  const x = (canvas.width / 2) - (img.width / 2) * scale;
   const y = 0; // oben fixiert
-  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
 }
 
@@ -153,7 +155,7 @@ function preloadNearbyFrames(center, range = 20) {
 loadFrame(0);
 preloadNearbyFrames(0, 20);
 
-// Scroll animation
+// Scrollanimation
 window.addEventListener("scroll", () => {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
@@ -173,14 +175,16 @@ function animateFrames() {
 }
 animateFrames();
 
-// Orientation change: only reset if device rotates
-window.addEventListener("orientationchange", () => {
-  setTimeout(() => {
-    canvas.width = window.screen.width;
-    canvas.height = window.screen.height + extraPadding;
-    if (images[currentFrame]?.complete) drawImageCover(images[currentFrame]);
-  }, 500);
-});
+// Initial Canvas setup
+updateCanvasSize();
+
+// VisualViewport Listener für dynamische Höhe bei URL-Leiste
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", updateCanvasSize);
+}
+
+// Orientation change fallback
+window.addEventListener("orientationchange", () => setTimeout(updateCanvasSize, 300));
 
 // Hamburger menu
 const hamburger = document.getElementById("hamburger");
