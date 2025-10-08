@@ -10,60 +10,37 @@
 html, body { margin:0; padding:0; background:#000; font-family:Segoe UI,sans-serif; overflow-x:hidden; }
 
 /* Canvas */
-canvas#sequence {
-  position: fixed;
-  top:0;
-  left:0;
-  z-index:0;
-  background:black;
-  object-fit: cover;
-}
+canvas#sequence { position: fixed; top:0; left:0; width:100vw; z-index:0; background:black; object-fit:cover; }
 
 /* Navigation */
-nav {
-  position: fixed;
-  top:0;
-  left:0;
-  width:100%;
-  background: rgb(49,49,49);
-  box-shadow:0 4px 8px rgba(0,0,0,0.2),0 6px 20px rgba(0,0,0,0.19);
-  padding:1rem;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  z-index:10;
-}
+nav { position:fixed; top:0; left:0; width:100%; background:rgb(49,49,49); box-shadow:0 4px 8px rgba(0,0,0,0.2),0 6px 20px rgba(0,0,0,0.19); padding:1rem; display:flex; justify-content:space-between; align-items:center; z-index:10; }
+nav .logo a{ color:white; text-decoration:none; font-weight:bold; font-size:1.5rem; text-shadow:0 0 3px rgba(8,0,0,0.47); }
+nav .nav-links{ display:flex; gap:2rem; flex-wrap:wrap; }
+nav .nav-links a{ color:white; text-decoration:none; font-weight:bold; user-select:none; text-shadow:0 0 3px rgba(8,0,0,0.47); transition: transform 0.2s,color 0.2s; }
+nav .nav-links a:hover{ color:#d33a57; transform:scale(1.1); }
+nav .nav-links a:active{ transform:scale(1); }
 
-nav .logo a { color:white; text-decoration:none; font-weight:bold; font-size:1.5rem; text-shadow:0 0 3px rgba(8,0,0,0.47);}
-nav .nav-links { display:flex; gap:2rem; flex-wrap:wrap;}
-nav .nav-links a { color:white; text-decoration:none; font-weight:bold; user-select:none; text-shadow:0 0 3px rgba(8,0,0,0.47); transition: transform 0.2s,color 0.2s;}
-nav .nav-links a:hover { color:#d33a57; transform: scale(1.1);}
-nav .nav-links a:active { transform: scale(1); }
-
-nav .hamburger { display:none; flex-direction:column; cursor:pointer; gap:5px; z-index:11;}
-nav .hamburger div { width:25px; height:3px; background:white; border-radius:2px; transition:background 0.2s, transform 0.2s;}
-nav .hamburger:hover div{background:#d33a57;}
-nav .hamburger:active div{background:#a22a45;}
+/* Hamburger */
+nav .hamburger{ display:none; flex-direction:column; cursor:pointer; gap:5px; z-index:11; }
+nav .hamburger div{ width:25px; height:3px; background:white; border-radius:2px; transition: background 0.2s, transform 0.2s; }
+nav .hamburger:hover div{ background:#d33a57; }
+nav .hamburger:active div{ background:#a22a45; }
 
 /* Mobile Nav */
 @media (max-width:700px){
-  nav .hamburger { display:flex; }
-  nav .nav-links {
-    position:absolute; top:100%; left:0; width:100%; flex-direction:column; background: rgb(106,106,106);
-    padding:0; gap:0; opacity:0; pointer-events:none; transform:translateY(-10px);
-    transition: opacity 0.36s cubic-bezier(.22,.8,.2,1), transform 0.36s cubic-bezier(.22,.8,.2,1);
-  }
-  nav .nav-links.show { opacity:1; transform:translateY(0); pointer-events:auto;}
-  nav .nav-links a { display:block; width:100%; text-align:center; padding:0.75rem 0; background:none; transition:background 0.2s;}
-  nav .nav-links a:hover{background:#d33a57; color:white;}
-  nav .nav-links a:active{background:#a22a45;}
+  nav .hamburger{ display:flex; }
+  nav .nav-links{ position:absolute; top:100%; left:0; width:100%; flex-direction:column; background:rgb(106,106,106); padding:0; gap:0; opacity:0; pointer-events:none; transform:translateY(-10px); transition:opacity 0.36s cubic-bezier(.22,.8,.2,1), transform 0.36s cubic-bezier(.22,.8,.2,1); }
+  nav .nav-links.show{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  nav .nav-links a{ display:block; width:100%; text-align:center; padding:0.75rem 0; background:none; transition: background 0.2s; }
+  nav .nav-links a:hover{ background:#d33a57; color:white; }
+  nav .nav-links a:active{ background:#a22a45; }
 }
 
 /* Sections */
-section { position:relative; margin:50% auto; padding:6rem 1rem; width:90%; max-width:900px; background:rgba(0,0,0,0.84); border-radius:20px; box-shadow:0 8px 25px rgba(0,0,0,0.4); z-index:1; }
-section .mask { position:relative; overflow:hidden; max-height:calc(100vh - 100px); margin:0 auto;}
-section .content { max-width:900px; margin:0 auto; padding:2rem 3rem; color:#fff; text-align:center;}
-@media(max-width:480px){ section{padding:4rem 1rem;width:95%;border-radius:16px;} section .content{padding:1.5rem 1rem;} }
+section{ position:relative; margin:50% auto; padding:6rem 1rem; width:90%; max-width:900px; background:rgba(0,0,0,0.84); border-radius:20px; box-shadow:0 8px 25px rgba(0,0,0,0.4); z-index:1; }
+section .mask{ position:relative; overflow:hidden; max-height:calc(100vh - 100px); margin:0 auto; }
+section .content{ max-width:900px; margin:0 auto; padding:2rem 3rem; color:#fff; text-align:center; }
+@media (max-width:480px){ section{ padding:4rem 1rem; width:95%; border-radius:16px; } section .content{ padding:1.5rem 1rem; } }
 </style>
 </head>
 <body>
@@ -76,58 +53,58 @@ section .content { max-width:900px; margin:0 auto; padding:2rem 3rem; color:#fff
     <a href="#">CLIENTS</a>
     <a href="#">KONTAKT</a>
   </div>
-  <div class="hamburger" id="hamburger"><div></div><div></div><div></div></div>
+  <div class="hamburger" id="hamburger">
+    <div></div><div></div><div></div>
+  </div>
 </nav>
 
 <canvas id="sequence"></canvas>
 
-<section id="section1"><div class="mask"><div class="content"><h2>About Me</h2><p>Lorem ipsum dolor sit amet...</p></div></div></section>
-<section id="section2"><div class="mask"><div class="content"><h2>Skills & Services</h2><p>More text for testing scroll behavior.</p></div></div></section>
-<section id="section3"><div class="mask"><div class="content"><h2>Contact</h2><p>Placeholder for contact details.</p></div></div></section>
+<section id="section1">
+  <div class="mask"><div class="content"><h2>About Me</h2><p>Lorem ipsum dolor sit amet...</p></div></div>
+</section>
+
+<section id="section2">
+  <div class="mask"><div class="content"><h2>Skills & Services</h2><p>More text for testing scroll behavior.</p></div></div>
+</section>
+
+<section id="section3">
+  <div class="mask"><div class="content"><h2>Contact</h2><p>Placeholder for contact details.</p></div></div>
+</section>
 
 <script>
-const canvas=document.getElementById("sequence");
-const ctx=canvas.getContext("2d");
-const frameCount=120;
-const images=[];
+const canvas = document.getElementById("sequence");
+const ctx = canvas.getContext("2d");
+const frameCount = 120;
+const images = [];
 let currentFrame=0,targetFrame=0;
 
-// Erkennung: Mobil/Touch
-function isMobile(){ return ("ontouchstart" in window) || navigator.maxTouchPoints>0; }
-function isLandscape(){ return window.innerWidth>window.innerHeight; }
-
-// Canvas-Größe
+// Canvas Größe setzen (Desktop / Mobile)
 function updateCanvasSize(){
-  if(isMobile()){
-    // Mobile Hoch-/Landscape: 50px Puffer, oben fixiert
-    const viewportHeight=window.innerHeight;
-    canvas.width=window.innerWidth;
-    canvas.height=viewportHeight+50;
-  }else{
-    // Desktop: dynamische Größe, ganze Fläche
-    canvas.width=window.innerWidth;
-    canvas.height=window.innerHeight;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  if(vw<=700){ // mobile Hoch- und Landscape
+    canvas.width = vw;
+    canvas.height = vh + 50; // 50px Reveal-Puffer
+  } else { // Desktop
+    canvas.width = vw;
+    canvas.height = vh;
   }
 }
 
-// Erstes Setzen
-updateCanvasSize();
-
-// Frame Pfad
+// Draw Image top-fixed
 const getFramePath=i=>`frames3/${i.toString().padStart(4,'0')}.jpg`;
-
-// Zeichnen
 function drawImageCover(img){
-  const scale=Math.max(canvas.width/img.width, canvas.height/img.height);
-  const x=(canvas.width/2)-(img.width/2)*scale;
-  const y=isMobile()?0:(canvas.height/2)-(img.height/2)*scale;
+  const scale = Math.max(canvas.width/img.width, canvas.height/img.height);
+  const x = (canvas.width/2)-(img.width/2)*scale;
+  const y = (window.innerWidth<=700?0: (canvas.height - img.height*scale)/2 ); // Mobile top, Desktop mittig
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.drawImage(img,x,y,img.width*scale,img.height*scale);
 }
 
-// Frame laden
+// Load frame
 function loadFrame(i){
-  if(i<0||i>=frameCount)return;
+  if(i<0||i>=frameCount) return;
   if(!images[i]){
     const img=new Image();
     img.src=getFramePath(i);
@@ -137,23 +114,27 @@ function loadFrame(i){
   return images[i];
 }
 
-// Preload
-function preloadNearbyFrames(center,range=20){ for(let o=-range;o<=range;o++) loadFrame(center+o);}
-loadFrame(0); preloadNearbyFrames(0,20);
+// Preload nearby frames
+function preloadNearbyFrames(center,range=20){ for(let offset=-range;offset<=range;offset++){ loadFrame(center+offset); } }
 
-// Scroll
-window.addEventListener("scroll",()=>{
+// Initial load
+updateCanvasSize();
+loadFrame(0);
+preloadNearbyFrames(0,20);
+
+// Scroll -> frame
+window.addEventListener('scroll',()=>{
   const scrollTop=window.scrollY;
-  const scrollHeight=document.body.scrollHeight-window.innerHeight;
+  const scrollHeight=document.body.scrollHeight - window.innerHeight;
   const scrollFraction=scrollTop/scrollHeight;
-  targetFrame=Math.min(frameCount-1, Math.floor(scrollFraction*frameCount));
+  targetFrame = Math.min(frameCount-1, Math.floor(scrollFraction*frameCount));
 });
 
-// Animate
+// Animate frames
 function animateFrames(){
   if(currentFrame!==targetFrame){
-    const dir=targetFrame>currentFrame?1:-1;
-    currentFrame+=dir;
+    const dir = targetFrame>currentFrame?1:-1;
+    currentFrame += dir;
     const img=loadFrame(currentFrame);
     if(img?.complete) drawImageCover(img);
     preloadNearbyFrames(currentFrame,20);
@@ -163,13 +144,19 @@ function animateFrames(){
 animateFrames();
 
 // Resize / Orientation
-window.addEventListener("resize",updateCanvasSize);
-window.addEventListener("orientationchange",updateCanvasSize);
+function handleResize(){
+  updateCanvasSize();
+  const img = loadFrame(currentFrame);
+  if(img?.complete) drawImageCover(img);
+}
+window.addEventListener("resize", handleResize);
+window.addEventListener("orientationchange", handleResize);
 
-// Hamburger
-const hamburger=document.getElementById("hamburger");
-const navLinks=document.getElementById("navLinks");
-hamburger.addEventListener("click",()=>navLinks.classList.toggle("show"));
+// Hamburger menu
+const hamburger = document.getElementById("hamburger");
+const navLinks = document.getElementById("navLinks");
+hamburger.addEventListener("click", ()=>navLinks.classList.toggle("show"));
 </script>
+
 </body>
 </html>
