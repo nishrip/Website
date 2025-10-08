@@ -3,58 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Landing Page with Dynamic Canvas Reveal</title>
+<title>Landing Page with Fixed Canvas and Full Styles</title>
 <style>
-/* Reset */
-*, *::before, *::after { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: #000; font-family: Segoe UI; overflow-x: hidden; }
+/* --------------------- */
+/* Global Reset & Body   */
+/* --------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
 
-/* Canvas */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  font-family: Segoe UI, sans-serif;
+  overflow-x: hidden;
+}
+
+/* --------------------- */
+/* Canvas               */
+/* --------------------- */
 canvas#sequence {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
   z-index: 0;
   background: black;
+  object-fit: cover;
 }
 
-/* Navigation bar */
+/* --------------------- */
+/* Navigation Bar        */
+/* --------------------- */
 nav {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  background: rgb(49,49,49);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  background: rgb(49, 49, 49);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2), 0 6px 20px rgba(0,0,0,0.19);
   padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   z-index: 10;
 }
-nav .logo a { color:white; text-decoration:none; font-weight:bold; font-size:1.5rem; }
-nav .nav-links { display:flex; gap:2rem; flex-wrap:wrap; }
-nav .nav-links a { color:white; text-decoration:none; font-weight:bold; user-select:none; }
-nav .hamburger { display:none; flex-direction:column; cursor:pointer; gap:5px; }
-nav .hamburger div { width:25px; height:3px; background:white; }
 
-/* Sections */
-section { position: relative; margin: 50% auto; padding: 6rem 1rem; width: 90%; max-width: 900px; background: rgba(0,0,0,0.84); border-radius:20px; box-shadow:0 8px 25px rgba(0,0,0,0.4); z-index:1; }
-section .mask { position: relative; overflow:hidden; max-height: calc(100vh - 100px); margin:0 auto; }
-section .content { max-width:900px; margin:0 auto; padding:2rem 3rem; color:#fff; text-align:center; }
+nav .logo a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.5rem;
+  text-shadow: 0 0 3px rgba(8,0,0,0.47);
+}
 
-/* Responsive */
+nav .nav-links {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+nav .nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  user-select: none;
+  text-shadow: 0 0 3px rgba(8,0,0,0.47);
+  transition: transform 0.2s, color 0.2s;
+}
+
+nav .nav-links a:hover { color: #d33a57; transform: scale(1.1); }
+nav .nav-links a:active { transform: scale(1); }
+
+/* Hamburger */
+nav .hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 5px;
+  z-index: 11;
+}
+
+nav .hamburger div {
+  width: 25px;
+  height: 3px;
+  background-color: white;
+  border-radius: 2px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+nav .hamburger:hover div { background-color: #d33a57; }
+nav .hamburger:active div { background-color: #a22a45; }
+
+/* Mobile Nav */
+@media (max-width: 700px) {
+  nav .hamburger { display: flex; }
+  nav .nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    flex-direction: column;
+    background: rgb(106, 106, 106);
+    padding: 0;
+    gap: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: opacity 0.36s cubic-bezier(.22,.8,.2,1),
+                transform 0.36s cubic-bezier(.22,.8,.2,1);
+  }
+  nav .nav-links.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  nav .nav-links a {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem 0;
+    background: none;
+    transition: background 0.2s;
+  }
+  nav .nav-links a:hover { background: #d33a57; color: white; }
+  nav .nav-links a:active { background: #a22a45; }
+}
+
+/* --------------------- */
+/* Sections              */
+/* --------------------- */
+section {
+  position: relative;
+  margin: 50% auto;
+  padding: 6rem 1rem;
+  width: 90%;
+  max-width: 900px;
+  background: rgba(0,0,0,0.84);
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+  z-index: 1;
+}
+
+section .mask {
+  position: relative;
+  overflow: hidden;
+  max-height: calc(100vh - 100px);
+  margin: 0 auto;
+}
+
+section .content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 3rem;
+  color: #fff;
+  text-align: center;
+}
+
 @media (max-width: 480px) {
-  section { padding: 4rem 1rem; width:95%; border-radius:16px; }
-  section .content { padding:1.5rem 1rem; }
-  nav .hamburger { display:flex; z-index:11; }
-  nav .nav-links { position:absolute; top:100%; left:0; width:100%; flex-direction:column; align-items:stretch; opacity:0; transform:translateY(-10px); pointer-events:none; transition:opacity 0.36s, transform 0.36s; z-index:5; }
-  nav .nav-links.show { opacity:1; transform:translateY(0); pointer-events:auto; }
-  nav .nav-links a { display:block; width:100%; text-align:center; padding:0.75rem 0; }
-  nav .nav-links a:hover { background:#d33a57; color:white; }
-  nav .nav-links a:active { background:#a22a45; }
+  section { padding: 4rem 1rem; width: 95%; border-radius: 16px; }
+  section .content { padding: 1.5rem 1rem; }
 }
 </style>
 </head>
@@ -78,9 +183,32 @@ section .content { max-width:900px; margin:0 auto; padding:2rem 3rem; color:#fff
 <canvas id="sequence"></canvas>
 
 <!-- Sections -->
-<section id="section1"><div class="mask"><div class="content"><h2>About Me</h2><p>Lorem ipsum dolor sit amet...</p></div></div></section>
-<section id="section2"><div class="mask"><div class="content"><h2>Skills & Services</h2><p>More text for testing scroll behavior.</p></div></div></section>
-<section id="section3"><div class="mask"><div class="content"><h2>Contact</h2><p>Placeholder for contact details.</p></div></div></section>
+<section id="section1">
+  <div class="mask">
+    <div class="content">
+      <h2>About Me</h2>
+      <p>Lorem ipsum dolor sit amet...</p>
+    </div>
+  </div>
+</section>
+
+<section id="section2">
+  <div class="mask">
+    <div class="content">
+      <h2>Skills & Services</h2>
+      <p>More text for testing scroll behavior.</p>
+    </div>
+  </div>
+</section>
+
+<section id="section3">
+  <div class="mask">
+    <div class="content">
+      <h2>Contact</h2>
+      <p>Placeholder for contact details.</p>
+    </div>
+  </div>
+</section>
 
 <script>
 const canvas = document.getElementById("sequence");
@@ -90,31 +218,28 @@ const images = [];
 let currentFrame = 0;
 let targetFrame = 0;
 
-// --- Initial Canvas Größe mit dynamischem Reveal-Puffer ---
-function setCanvasSize() {
-  const screenWidth = window.screen.width;
-  const screenHeight = window.screen.height;
-  const visibleHeight = window.innerHeight;
-  const urlBarHeight = screenHeight - visibleHeight;
-  const revealPadding = Math.max(50, urlBarHeight); // mindestens 50px, sonst URL-Höhe
-  canvas.width = screenWidth;
-  canvas.height = visibleHeight + revealPadding;
+// --- Canvas Top-Fixed mit Reveal ---
+function updateCanvasSize() {
+  const viewportHeight = window.innerHeight;
+  const urlBarHeight = window.screen.height - viewportHeight;
+  canvas.width = window.innerWidth;
+  canvas.height = viewportHeight + urlBarHeight + 50; // 50px Puffer unten
 }
-setCanvasSize();
 
-// Frame loader
+updateCanvasSize();
+
 const getFramePath = i => `frames3/${i.toString().padStart(4,'0')}.jpg`;
 
-function drawImageCover(img) {
+function drawImageCover(img){
   const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
   const x = (canvas.width/2) - (img.width/2)*scale;
-  const y = (canvas.height/2) - (img.height/2)*scale;
+  const y = 0; // fixiert am Top
   ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.drawImage(img,x,y,img.width*scale,img.height*scale);
 }
 
 function loadFrame(i){
-  if(i<0||i>=frameCount) return;
+  if(i<0 || i>=frameCount) return;
   if(!images[i]){
     const img = new Image();
     img.src = getFramePath(i);
@@ -130,20 +255,22 @@ function preloadNearbyFrames(center, range=20){
   }
 }
 
+// initial load
 loadFrame(0);
 preloadNearbyFrames(0,20);
 
-// Scroll Animation
-window.addEventListener("scroll", ()=>{
+// Scroll -> Frame
+window.addEventListener('scroll', ()=>{
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const scrollFraction = scrollTop / scrollHeight;
   targetFrame = Math.min(frameCount-1, Math.floor(scrollFraction*frameCount));
 });
 
+// Animation loop
 function animateFrames(){
-  if(currentFrame !== targetFrame){
-    const dir = targetFrame>currentFrame?1:-1;
+  if(currentFrame!==targetFrame){
+    const dir = targetFrame>currentFrame ? 1 : -1;
     currentFrame += dir;
     const img = loadFrame(currentFrame);
     if(img?.complete) drawImageCover(img);
@@ -153,13 +280,9 @@ function animateFrames(){
 }
 animateFrames();
 
-// Orientationchange: Canvas neu setzen
-window.addEventListener("orientationchange", ()=>{
-  setTimeout(()=>{ 
-    setCanvasSize();
-    if(images[currentFrame]?.complete) drawImageCover(images[currentFrame]);
-  },500);
-});
+// Resize / OrientationChange
+window.addEventListener("resize", updateCanvasSize);
+window.addEventListener("orientationchange", updateCanvasSize);
 
 // Hamburger menu
 const hamburger = document.getElementById("hamburger");
