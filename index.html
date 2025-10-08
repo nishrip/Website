@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Landing Page with Sections</title>
+<title>Landing Page with Fixed Canvas Reveal</title>
 <link rel="stylesheet" href="global.css">
 <style>
-/* Section bar */
+/* Sections */
 section {
   position: relative;
   margin: 50% auto;
@@ -47,6 +47,16 @@ section .content {
     padding: 1.5rem 1rem;
   }
 }
+
+/* Canvas fixed top, reveal padding */
+canvas#sequence {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  z-index: 0;
+  background: black;
+}
 </style>
 </head>
 <body>
@@ -65,7 +75,7 @@ section .content {
   </div>
 </nav>
 
-<!-- Background animation -->
+<!-- Canvas -->
 <canvas id="sequence"></canvas>
 
 <!-- Sections -->
@@ -73,8 +83,7 @@ section .content {
   <div class="mask">
     <div class="content">
       <h2>About Me</h2>
-      <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr...</p>
-      <p>More text... keep scrolling to test slit cutoff effect at top/bottom.</p>
+      <p>Lorem ipsum dolor sit amet...</p>
     </div>
   </div>
 </section>
@@ -83,9 +92,7 @@ section .content {
   <div class="mask">
     <div class="content">
       <h2>Skills & Services</h2>
-      <p>Placeholder for describing what you offer and your expertise.</p>
-      <p>Extra text to demonstrate scrollable content inside the slit mask.</p>
-      <p>Even more filler text to see the cutoff working nicely.</p>
+      <p>More text for testing scroll behavior.</p>
     </div>
   </div>
 </section>
@@ -94,14 +101,12 @@ section .content {
   <div class="mask">
     <div class="content">
       <h2>Contact</h2>
-      <p>Placeholder for your contact info or call to action.</p>
-      <p>You can add forms or links here. They’ll also get clipped at the slit boundaries.</p>
+      <p>Placeholder for contact details.</p>
     </div>
   </div>
 </section>
 
 <script>
-// Canvas animation setup
 const canvas = document.getElementById("sequence");
 const ctx = canvas.getContext("2d");
 const frameCount = 120;
@@ -109,20 +114,21 @@ const images = [];
 let currentFrame = 0;
 let targetFrame = 0;
 
-// Frame path generator
-const getFramePath = i => `frames3/${i.toString().padStart(4,'0')}.jpg`;
+// --- Canvas initial setup ---
+const extraPadding = 200; // Platz unten für Reveal
+const canvasWidth = window.screen.width;
+const canvasHeight = window.screen.height + extraPadding;
 
-// --- Oversize Canvas mit Puffer --- //
-const padding = 100; // Extra-Bereich, damit keine schwarzen Balken erscheinen
-let canvasWidth = window.innerWidth + padding * 2;
-let canvasHeight = window.innerHeight + padding * 2;
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
+
+// Frame path generator
+const getFramePath = i => `frames3/${i.toString().padStart(4, '0')}.jpg`;
 
 function drawImageCover(img) {
   const scale = Math.max(canvasWidth / img.width, canvasHeight / img.height);
   const x = (canvasWidth / 2) - (img.width / 2) * scale;
-  const y = (canvasHeight / 2) - (img.height / 2) * scale;
+  const y = 0; // oben fixiert
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
 }
@@ -147,6 +153,7 @@ function preloadNearbyFrames(center, range = 20) {
 loadFrame(0);
 preloadNearbyFrames(0, 20);
 
+// Scroll animation
 window.addEventListener("scroll", () => {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
@@ -166,26 +173,14 @@ function animateFrames() {
 }
 animateFrames();
 
-// --- Resize nur bei echter Änderung / Drehung --- //
-let lastOrientation = window.orientation || 0;
-
-function updateCanvasSize() {
-  const newOrientation = window.orientation || 0;
-  const newWidth = window.innerWidth + padding * 2;
-  const newHeight = window.innerHeight + padding * 2;
-
-  if (newWidth !== canvasWidth || newHeight !== canvasHeight || newOrientation !== lastOrientation) {
-    lastOrientation = newOrientation;
-    canvasWidth = newWidth;
-    canvasHeight = newHeight;
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
+// Orientation change: only reset if device rotates
+window.addEventListener("orientationchange", () => {
+  setTimeout(() => {
+    canvas.width = window.screen.width;
+    canvas.height = window.screen.height + extraPadding;
     if (images[currentFrame]?.complete) drawImageCover(images[currentFrame]);
-  }
-}
-
-window.addEventListener("orientationchange", updateCanvasSize);
-window.addEventListener("resize", updateCanvasSize);
+  }, 500);
+});
 
 // Hamburger menu
 const hamburger = document.getElementById("hamburger");
