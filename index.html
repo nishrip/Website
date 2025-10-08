@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Landing Page with Fixed Canvas Reveal</title>
+<title>Landing Page with Fixed Canvas</title>
 <link rel="stylesheet" href="global.css">
 <style>
 /* Sections */
@@ -48,12 +48,14 @@ section .content {
   }
 }
 
-/* Canvas fixed top, reveal padding */
+/* Canvas fixed top with extra height for reveal */
 canvas#sequence {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
+  width: 100vw;          /* full width */
+  height: auto;          /* height auto to maintain aspect ratio */
+  min-height: 120vh;     /* extra height for reveal below viewport */
   z-index: 0;
   background: black;
 }
@@ -114,82 +116,71 @@ const images = [];
 let currentFrame = 0;
 let targetFrame = 0;
 
-// --- Dynamische Canvas-Höhe basierend auf Viewport + Browser-UI ---
-function updateCanvasSize() {
-  // Visual Viewport Höhe = Viewport minus URL-Leiste
-  const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  const extraPadding = 200; // optionaler Puffer, falls nötig
-  canvas.width = window.innerWidth;
-  canvas.height = viewportHeight + extraPadding;
-  if (images[currentFrame]?.complete) drawImageCover(images[currentFrame]);
-}
+// --- Initial Canvas dimensions ---
+const deviceWidth = window.screen.width;
+const deviceHeight = window.screen.height;
+canvas.width = deviceWidth;
+canvas.height = deviceHeight * 1.2; // 120% height for reveal
 
 // Frame path generator
-const getFramePath = i => `frames3/${i.toString().padStart(4, '0')}.jpg`;
+const getFramePath = i => `frames3/${i.toString().padStart(4,'0')}.jpg`;
 
-function drawImageCover(img) {
-  const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-  const x = (canvas.width / 2) - (img.width / 2) * scale;
-  const y = 0; // oben fixiert
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+// Draw image with cover scaling, top-aligned
+function drawImageCover(img){
+  const scale = deviceWidth / img.width;
+  const x = 0; 
+  const y = 0; // always top-aligned
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
 }
 
-function loadFrame(i) {
-  if (i < 0 || i >= frameCount) return;
-  if (!images[i]) {
+// Load frame
+function loadFrame(i){
+  if(i<0 || i>=frameCount) return;
+  if(!images[i]){
     const img = new Image();
     img.src = getFramePath(i);
-    img.onload = () => { if (i === currentFrame) drawImageCover(img); };
+    img.onload = ()=> { if(i===currentFrame) drawImageCover(img); };
     images[i] = img;
   }
   return images[i];
 }
 
-function preloadNearbyFrames(center, range = 20) {
-  for (let offset = -range; offset <= range; offset++) {
-    loadFrame(center + offset);
+// Preload frames around current
+function preloadNearbyFrames(center, range=20){
+  for(let offset=-range; offset<=range; offset++){
+    loadFrame(center+offset);
   }
 }
 
 loadFrame(0);
-preloadNearbyFrames(0, 20);
+preloadNearbyFrames(0,20);
 
-// Scrollanimation
+// Scroll handler
 window.addEventListener("scroll", () => {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
   const scrollFraction = scrollTop / scrollHeight;
-  targetFrame = Math.min(frameCount - 1, Math.floor(scrollFraction * frameCount));
+  targetFrame = Math.min(frameCount-1, Math.floor(scrollFraction*frameCount));
 });
 
-function animateFrames() {
-  if (currentFrame !== targetFrame) {
+// Animation loop
+function animateFrames(){
+  if(currentFrame !== targetFrame){
     const dir = targetFrame > currentFrame ? 1 : -1;
     currentFrame += dir;
     const img = loadFrame(currentFrame);
-    if (img?.complete) drawImageCover(img);
-    preloadNearbyFrames(currentFrame, 20);
+    if(img?.complete) drawImageCover(img);
+    preloadNearbyFrames(currentFrame,20);
   }
   requestAnimationFrame(animateFrames);
 }
 animateFrames();
 
-// Initial Canvas setup
-updateCanvasSize();
-
-// VisualViewport Listener für dynamische Höhe bei URL-Leiste
-if (window.visualViewport) {
-  window.visualViewport.addEventListener("resize", updateCanvasSize);
-}
-
-// Orientation change fallback
-window.addEventListener("orientationchange", () => setTimeout(updateCanvasSize, 300));
-
 // Hamburger menu
 const hamburger = document.getElementById("hamburger");
 const navLinks = document.getElementById("navLinks");
-hamburger.addEventListener("click", () => navLinks.classList.toggle("show"));
+hamburger.addEventListener("click", ()=>navLinks.classList.toggle("show"));
 </script>
 
 </body>
