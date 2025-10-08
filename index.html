@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Landing Page with Sections</title>
+<title>Canvas Fix Mobile</title>
 <link rel="stylesheet" href="global.css">
 <style>
-
-/* Section bar */
+/* --- Allgemeine Section-Stile --- */
 section {
   position: relative;
   margin: 50% auto;
@@ -20,7 +19,6 @@ section {
   z-index: 1;
 }
 
-/* Mask container */
 section .mask {
   position: relative;
   overflow: hidden;
@@ -28,7 +26,6 @@ section .mask {
   margin: 0 auto;
 }
 
-/* Content */
 section .content {
   max-width: 900px;
   margin: 0 auto;
@@ -37,7 +34,6 @@ section .content {
   text-align: center;
 }
 
-/* Responsive */
 @media (max-width: 480px) {
   section {
     padding: 4rem 1rem;
@@ -47,6 +43,17 @@ section .content {
   section .content {
     padding: 1.5rem 1rem;
   }
+}
+
+/* Canvas soll fix als Hintergrund liegen */
+canvas#sequence {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  background: black;
 }
 </style>
 </head>
@@ -66,10 +73,10 @@ section .content {
   </div>
 </nav>
 
-<!-- Background animation -->
+<!-- Hintergrund-Canvas -->
 <canvas id="sequence"></canvas>
 
-<!-- Sections -->
+<!-- Beispiel-Sections -->
 <section id="section1">
   <div class="mask">
     <div class="content">
@@ -102,7 +109,7 @@ section .content {
 </section>
 
 <script>
-// Canvas animation setup
+// --- Canvas Setup ---
 const canvas = document.getElementById("sequence");
 const ctx = canvas.getContext("2d");
 const frameCount = 120;
@@ -110,19 +117,15 @@ const images = [];
 let currentFrame = 0;
 let targetFrame = 0;
 
-// Frame path generator
-const getFramePath = i => `frames3/${i.toString().padStart(4,'0')}.jpg`;
+const getFramePath = i => `frames3/${i.toString().padStart(4, '0')}.jpg`;
 
-// --- Device-based maximum screen size --- //
-const deviceScreenWidth = window.screen.width;
-const deviceScreenHeight = window.screen.height;
-
-// Canvas wird auf die maximale Displaygröße fixiert (+ Puffer)
-let canvasWidth = deviceScreenWidth;
-let canvasHeight = deviceScreenHeight + 100; // +100px extra buffer unten
+// --- Fixe Größe: volle Gerätegröße ---
+let canvasWidth = window.screen.width;
+let canvasHeight = window.screen.height;
 canvas.width = canvasWidth;
 canvas.height = canvasHeight;
 
+// --- Zeichnen ---
 function drawImageCover(img) {
   const scale = Math.max(canvasWidth / img.width, canvasHeight / img.height);
   const x = (canvasWidth / 2) - (img.width / 2) * scale;
@@ -131,6 +134,7 @@ function drawImageCover(img) {
   ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
 }
 
+// --- Bilder laden ---
 function loadFrame(i) {
   if (i < 0 || i >= frameCount) return;
   if (!images[i]) {
@@ -148,9 +152,11 @@ function preloadNearbyFrames(center, range = 20) {
   }
 }
 
+// --- Initiales Laden ---
 loadFrame(0);
 preloadNearbyFrames(0, 20);
 
+// --- Scroll Steuerung ---
 window.addEventListener("scroll", () => {
   const scrollTop = window.scrollY;
   const scrollHeight = document.body.scrollHeight - window.innerHeight;
@@ -158,6 +164,7 @@ window.addEventListener("scroll", () => {
   targetFrame = Math.min(frameCount - 1, Math.floor(scrollFraction * frameCount));
 });
 
+// --- Animationsloop ---
 function animateFrames() {
   if (currentFrame !== targetFrame) {
     const dir = targetFrame > currentFrame ? 1 : -1;
@@ -170,27 +177,18 @@ function animateFrames() {
 }
 animateFrames();
 
-// --- Handle echte Resizes (Rotation, Desktop Resize) --- //
-let lastOrientation = window.orientation || 0;
-
-function updateCanvasSize() {
-  const newOrientation = window.orientation || 0;
-
-  // Nur reagieren bei echter Drehung oder Desktop-Resize
-  if (window.innerWidth !== canvasWidth || window.innerHeight !== canvasHeight || newOrientation !== lastOrientation) {
-    lastOrientation = newOrientation;
-    canvasWidth = window.innerWidth;
-    canvasHeight = window.innerHeight + 100;
+// --- Reaktion auf echte Drehung ---
+window.addEventListener("orientationchange", () => {
+  setTimeout(() => {
+    canvasWidth = window.screen.width;
+    canvasHeight = window.screen.height;
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     if (images[currentFrame]?.complete) drawImageCover(images[currentFrame]);
-  }
-}
+  }, 500);
+});
 
-window.addEventListener("orientationchange", updateCanvasSize);
-window.addEventListener("resize", updateCanvasSize);
-
-// Hamburger menu
+// --- Hamburger Menü ---
 const hamburger = document.getElementById("hamburger");
 const navLinks = document.getElementById("navLinks");
 hamburger.addEventListener("click", () => navLinks.classList.toggle("show"));
