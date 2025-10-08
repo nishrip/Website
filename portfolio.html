@@ -3,104 +3,142 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Landing Page with Fixed Canvas</title>
+<title>Landing Page with Sections</title>
+<link rel="stylesheet" href="global.css">
+<link rel="stylesheet" href="site1.css">
+<!-- Panolens / Three.js / Tween (für Panorama) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r110/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/panolens@0.12.0/build/panolens.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/Tween.min.js"></script>
+
 <style>
-*,
-*::before,
-*::after { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: #000; font-family: Segoe UI, sans-serif; overflow-x: hidden; }
-
-/* Canvas */
-canvas#sequence { position: fixed; top: 0; left: 0; width: 100vw; z-index: 0; background: black; object-fit: cover; }
-
-/* Nav */
-nav { position: fixed; top: 0; left: 0; width: 100%; background: rgb(49,49,49); box-shadow: 0 4px 8px rgba(0,0,0,0.2),0 6px 20px rgba(0,0,0,0.19); padding: 1rem; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
-nav .logo a { color: white; text-decoration: none; font-weight: bold; font-size: 1.5rem; text-shadow: 0 0 3px rgba(8,0,0,0.47); }
-nav .nav-links { display: flex; gap: 2rem; flex-wrap: wrap; }
-nav .nav-links a { color: white; text-decoration: none; font-weight: bold; user-select: none; text-shadow: 0 0 3px rgba(8,0,0,0.47); transition: transform 0.2s,color 0.2s; }
-nav .nav-links a:hover { color:#d33a57; transform:scale(1.1); }
-nav .nav-links a:active { transform:scale(1); }
-
-/* Hamburger */
-nav .hamburger { display:none; flex-direction: column; cursor:pointer; gap:5px; z-index:11; }
-nav .hamburger div { width:25px; height:3px; background-color:white; border-radius:2px; transition: background 0.2s, transform 0.2s; }
-nav .hamburger:hover div { background-color:#d33a57; }
-nav .hamburger:active div { background-color:#a22a45; }
-
-/* Mobile Nav */
-@media(max-width:700px){
-  nav .hamburger{ display:flex; }
-  nav .nav-links{ position:absolute; top:100%; left:0; width:100%; flex-direction:column; background:rgb(106,106,106); padding:0; gap:0; opacity:0; pointer-events:none; transform:translateY(-10px); transition:opacity 0.36s cubic-bezier(.22,.8,.2,1), transform 0.36s cubic-bezier(.22,.8,.2,1); }
-  nav .nav-links.show{ opacity:1; transform:translateY(0); pointer-events:auto; }
-  nav .nav-links a{ display:block; width:100%; text-align:center; padding:0.75rem 0; background:none; transition:background 0.2s; }
-  nav .nav-links a:hover{ background:#d33a57; color:white; }
-  nav .nav-links a:active{ background:#a22a45; }
-}
-
-/* Sections */
-section{ position:relative; margin:50% auto; padding:6rem 1rem; width:90%; max-width:900px; background:rgba(0,0,0,0.84); border-radius:20px; box-shadow:0 8px 25px rgba(0,0,0,0.4); z-index:1; }
-section .mask{ position:relative; overflow:hidden; max-height:calc(100vh - 100px); margin:0 auto; }
-section .content{ max-width:900px; margin:0 auto; padding:2rem 3rem; color:#fff; text-align:center; }
-@media(max-width:480px){ section{ padding:4rem 1rem; width:95%; border-radius:16px; } section .content{ padding:1.5rem 1rem; } }
+  
 </style>
 </head>
 <body>
 
+<!-- Navigation -->
 <nav>
   <div class="logo"><a href="index.html">PREISE</a></div>
   <div class="nav-links" id="navLinks">
-    <a href="portfolio.html">PORTFOLIO</a>
+    <a id="portfolio" href="#">PORTFOLIO</a>
     <a href="#">PREISE</a>
     <a href="#">CLIENTS</a>
     <a href="#">KONTAKT</a>
   </div>
-  <div class="hamburger" id="hamburger"><div></div><div></div><div></div></div>
+  <div class="hamburger" id="hamburger">
+    <div></div><div></div><div></div>
+  </div>
 </nav>
 
+<!-- Background animation -->
 <canvas id="sequence"></canvas>
 
-<section id="section1"><div class="mask"><div class="content"><h2>About Me</h2><p>Lorem ipsum dolor sit amet...</p></div></div></section>
-<section id="section2"><div class="mask"><div class="content"><h2>Skills & Services</h2><p>More text for testing scroll behavior.</p></div></div></section>
-<section id="section3"><div class="mask"><div class="content"><h2>Contact</h2><p>Placeholder for contact details.</p></div></div></section>
+<!-- === Sections === -->
+<section id="section1">
+  <div class="mask">
+    <div class="content">
+      <h2>Einzelfotos</h2>
+      <div class="photo-gallery" style="position: relative;">
+        <button id="prevPhoto" style="position:absolute;left:10px;top:50%;">&#10094;</button>
+        <img id="galleryImage" src="images/NeuGarage_0001.png" alt="Gallery" style="width:100%;border-radius:10px;">
+        <button id="nextPhoto" style="position:absolute;right:10px;top:50%;">&#10095;</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="section2">
+  <div class="mask">
+    <div class="content">
+      <h2>Vergleichsslider</h2>
+      <img id="sliderPreview" src="Vergleich.jpg" style="width:100%;border-radius:10px;cursor:pointer;">
+    </div>
+  </div>
+</section>
+
+<section id="section3">
+  <div class="mask">
+    <div class="content">
+      <h2>360° Ansicht</h2>
+      <img id="panoPreview" src="pano/pano1.jpg" style="width:100%;border-radius:10px;cursor:pointer;">
+    </div>
+  </div>
+</section>
+
+<section id="section4">
+  <div class="mask">
+    <div class="content">
+      <h2>Video</h2>
+      <div class="video-wrapper">
+        <iframe loading="lazy" title="YouTube video player"
+                src="https://www.youtube.com/embed/bLCyMWfFf4M"
+                style="border:0;"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Slider Overlay -->
+<div id="sliderOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;z-index:100;">
+  <button class="overlay-close" id="closeSliderOverlay">×</button>
+  <div class="container" style="width:90%;max-width:1920px;margin:0 auto;position:relative;top:50%;transform:translateY(-50%);aspect-ratio:16/9;">
+    <div id="left" class="pane" style="background-image:url('V1.png');"></div>
+    <div id="right" class="pane" style="background-image:url('V2.png');"></div>
+    <div id="slider"></div>
+  </div>
+</div>
+
+<!-- Panorama Overlay (full-screen) -->
+<div id="panoOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;z-index:150;">
+  <button class="overlay-close" id="closePanoOverlay">×</button>
+  <div id="panoViewFull" style="width:100%;height:100%;margin:0;position:relative;top:0;left:0;background:#111;border-radius:0;">
+    <!-- inner container for Panolens viewer -->
+    <div id="panoViewFullInner">
+      <div id="panoFadeOverlay"></div>
+      <div id="panoContainer" style="width:100%;height:100%;position:relative;z-index:1;"></div>
+    </div>
+  </div>
+</div>
 
 <script>
+// =======================
+//  GLOBAL: Canvas Sequence
+// =======================
 const canvas = document.getElementById("sequence");
 const ctx = canvas.getContext("2d");
-const frameCount = 120;
-const images = [];
+
+// Frame sequence config (kept as in original)
+const frameCount = 122;
+let images = []; // will contain Image objects or nulls
 let currentFrame = 0;
 let targetFrame = 0;
+let animationId = null;
+let scrollHandler = null; // named so we can remove/add
+let resizeHandler = null;
+let isCanvasInitialized = false;
 
-// Detect mobile
-const isMobile = window.innerWidth <= 700;
+// helper path
+const getFramePath = i => `frames1/${(i + 120).toString().padStart(4, '0')}.jpg`;
 
-// Setup canvas size
-function updateCanvasSize(){
-  if(isMobile){
-    const viewportHeight = window.innerHeight;
-    const urlBarHeight = window.screen.height - viewportHeight;
-    canvas.width = window.innerWidth;
-    canvas.height = viewportHeight + 50; // 50px Puffer
-  } else {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  if(images[currentFrame]?.complete) drawImageCover(images[currentFrame]);
-}
-updateCanvasSize();
-
-const getFramePath = i => `frames3/${i.toString().padStart(4,'0')}.jpg`;
-
+// draw (keeps same visuals)
 function drawImageCover(img){
-  const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-  const x = (canvas.width/2) - (img.width/2)*scale;
-  const y = isMobile ? 0 : (canvas.height/2) - (img.height/2)*scale; // top-fixed mobile
+  // keep same behaviour: set canvas size per draw to keep same display
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const scale = Math.max(canvas.width/img.width, canvas.height/img.height);
+  const x = (canvas.width/2)-(img.width/2)*scale;
+  const y = (canvas.height/2)-(img.height/2)*scale;
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.drawImage(img,x,y,img.width*scale,img.height*scale);
+  ctx.drawImage(img, x, y, img.width*scale, img.height*scale);
 }
 
+// load single frame if not present
 function loadFrame(i){
-  if(i<0 || i>=frameCount) return;
+  if(i<0||i>=frameCount) return;
   if(!images[i]){
     const img = new Image();
     img.src = getFramePath(i);
@@ -110,44 +148,773 @@ function loadFrame(i){
   return images[i];
 }
 
-function preloadNearbyFrames(center, range=20){
-  for(let offset=-range; offset<=range; offset++){ loadFrame(center+offset); }
+// preload range around center
+function preloadNearbyFrames(center, range=10){
+  for(let offset=-range; offset<=range; offset++){
+    const idx = center + offset;
+    if(idx>=0 && idx<frameCount) loadFrame(idx);
+  }
+
+  // Speicher entlasten: alte Frames freigeben
+  for(let i=0; i<images.length; i++){
+    if(Math.abs(i-center) > range && images[i]){
+      images[i].src = '';
+      images[i] = null;
+    }
+  }
 }
 
-// initial load
-loadFrame(0);
-preloadNearbyFrames(0,20);
-
-// Scroll -> Frame
-window.addEventListener('scroll', ()=>{
-  const scrollTop = window.scrollY;
-  const scrollHeight = document.body.scrollHeight - window.innerHeight;
-  const scrollFraction = scrollTop / scrollHeight;
-  targetFrame = Math.min(frameCount-1, Math.floor(scrollFraction*frameCount));
-});
-
-// Animation loop
+// animation loop uses requestAnimationFrame
 function animateFrames(){
   if(currentFrame!==targetFrame){
-    const dir = targetFrame>currentFrame ? 1 : -1;
+    const dir = targetFrame>currentFrame ? 1:-1;
     currentFrame += dir;
     const img = loadFrame(currentFrame);
     if(img?.complete) drawImageCover(img);
     preloadNearbyFrames(currentFrame,20);
   }
-  requestAnimationFrame(animateFrames);
+  animationId = requestAnimationFrame(animateFrames);
 }
-animateFrames();
 
-// Resize / orientation
-window.addEventListener("resize", updateCanvasSize);
-window.addEventListener("orientationchange", updateCanvasSize);
+// INIT canvas: adds listeners, starts preloading & animation
+function initCanvasSequence(){
+  if(isCanvasInitialized) return;
+  isCanvasInitialized = true;
 
-// Hamburger menu
-const hamburger = document.getElementById("hamburger");
-const navLinks = document.getElementById("navLinks");
-hamburger.addEventListener("click", ()=>navLinks.classList.toggle("show"));
+  // named scroll handler so we can remove it later
+ let lastScrollTime = 0;
+  scrollHandler = () => {
+    const now = performance.now();
+    if (now - lastScrollTime < 16) return; // max 60fps
+    lastScrollTime = now;
+
+    const scrollTop = window.scrollY;
+    const scrollHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollFraction = scrollTop / (scrollHeight || 1);
+    targetFrame = Math.min(frameCount-1, Math.floor(scrollFraction * frameCount));
+  };
+
+  resizeHandler = () => { if(images[currentFrame]?.complete) drawImageCover(images[currentFrame]); };
+
+  window.addEventListener('scroll', scrollHandler, { passive: true });
+  window.addEventListener('resize', resizeHandler);
+
+  // initialize frames (keeps exact behavior: preload around 0)
+  images = new Array(frameCount);
+  currentFrame = 0;
+  targetFrame = 0;
+  loadFrame(0);
+  preloadNearbyFrames(0,20);
+
+  // start animation loop
+  if(!animationId) animateFrames();
+}
+
+// DESTROY canvas resources: cancels animation, removes listeners, clears image src references
+function destroyCanvasSequence(){
+  // stop animation
+  if(animationId){
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+  // remove listeners
+  try { if(scrollHandler) window.removeEventListener('scroll', scrollHandler, { passive: true }); } catch(e){}
+  try { if(resizeHandler) window.removeEventListener('resize', resizeHandler); } catch(e){}
+
+  // clear preloaded images to free memory (best-effort)
+  if(images && images.length){
+    for(let i=0;i<images.length;i++){
+      try {
+        if(images[i] && images[i].src){
+          // remove src and null ref so GC can collect
+          images[i].src = '';
+        }
+      } catch(e){}
+      images[i] = null;
+    }
+  }
+  images = [];
+  currentFrame = 0;
+  targetFrame = 0;
+  isCanvasInitialized = false;
+
+  // clear canvas drawing and size to release GPU memory region
+  try {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    canvas.width = 0;
+    canvas.height = 0;
+  } catch(e){}
+}
+  
+// Stoppt das YouTube-Video, um Ressourcen freizugeben
+function resetYouTubePlayer() {
+  const wrapper = document.querySelector('.video-wrapper');
+  if (!wrapper) return;
+
+  const oldIframe = wrapper.querySelector('iframe');
+  if (oldIframe) {
+    // Speichere src, um es später wiederherzustellen
+    wrapper.dataset.originalSrc = oldIframe.src;
+    oldIframe.remove(); // iframe komplett entfernen
+  }
+}
+
+function restoreYouTubePlayer() {
+  const wrapper = document.querySelector('.video-wrapper');
+  if (!wrapper) return;
+
+  const existingIframe = wrapper.querySelector('iframe');
+  if (existingIframe) return; // schon wiederhergestellt
+
+  const src = wrapper.dataset.originalSrc || "https://www.youtube.com/embed/bLCyMWfFf4M";
+
+  const newIframe = document.createElement('iframe');
+  newIframe.loading = 'lazy';
+  newIframe.title = 'YouTube video player';
+  newIframe.src = src;
+  newIframe.style.border = '0';
+  newIframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+  newIframe.allowFullscreen = true;
+
+  wrapper.appendChild(newIframe);
+}
+  
+// =======================
+// Slider: Weicher Destroy / Reinitialisierung
+// =======================
+function softDestroySliderOverlay() {
+  const sliderOverlay = document.getElementById('sliderOverlay');
+  if (!sliderOverlay) return;
+
+  // Overlay ausblenden
+  sliderOverlay.style.display = 'none';
+  document.body.style.overflow = '';
+
+  // Hintergrundbilder freigeben
+  sliderOverlay.querySelector('#left').style.backgroundImage = '';
+  sliderOverlay.querySelector('#right').style.backgroundImage = '';
+
+  // Zoom / Drag zurücksetzen
+  scale = 1;
+  posX = 0;
+  posY = 0;
+
+  // Slider Handle Position zurücksetzen
+  sliderHandle.style.left = '50%';
+  sliderOverlayRight.style.clipPath = 'inset(0 0 0 50%)';
+}
+
+// Start by initializing canvas as original page would
+initCanvasSequence(); // gpt schaue hier, warum ist die funktion hier ausgeführt?
+
+
+// =======================
+//  NAV / Gallery / Slider (unchanged behavior)
+// =======================
+document.getElementById("hamburger").addEventListener("click", ()=>document.getElementById("navLinks").classList.toggle("show"));
+
+const photos = ["images/photo1.jpg","images/photo2.jpg","images/photo3.jpg"];
+let photoIndex = 0;
+const galleryImage = document.getElementById("galleryImage");
+document.getElementById("nextPhoto").addEventListener("click", ()=>{photoIndex = (photoIndex + 1) % photos.length;galleryImage.src = photos[photoIndex];});
+document.getElementById("prevPhoto").addEventListener("click", ()=>{photoIndex = (photoIndex - 1 + photos.length) % photos.length;galleryImage.src = photos[photoIndex];});
+
+// Slider overlay existing logic - unchanged
+const sliderOverlay = document.getElementById('sliderOverlay');
+const overlayContainer = sliderOverlay.querySelector('.container');
+const sliderOverlayLeft = overlayContainer.querySelector('#left');
+const sliderOverlayRight = overlayContainer.querySelector('#right');
+const sliderHandle = overlayContainer.querySelector('#slider');
+
+let isDraggingSlider=false, isDraggingView=false, dragStartX=0, dragStartY=0, dragLastX=0, dragLastY=0, scale=1, posX=0, posY=0;
+
+function clamp(v,min,max){return Math.min(Math.max(v,min),max);}
+function updateSliderOverlay(x){
+  const rect = overlayContainer.getBoundingClientRect();
+  const offsetX = clamp(x - rect.left, 0, rect.width);
+  const percent = (offsetX / rect.width) * 100;
+  sliderHandle.style.left = percent + '%';
+  sliderOverlayRight.style.clipPath = `inset(0 0 0 ${percent}%)`;
+}
+
+sliderHandle.addEventListener('mousedown', e=>{isDraggingSlider=true;e.preventDefault();});
+document.addEventListener('mouseup', ()=>isDraggingSlider=false);
+document.addEventListener('mousemove', e=>{if(isDraggingSlider) updateSliderOverlay(e.clientX);});
+
+// Touch support
+sliderHandle.addEventListener('touchstart', e=>{isDraggingSlider=true;e.preventDefault();}, {passive:false});
+sliderHandle.addEventListener('touchend', e=>{isDraggingSlider=false;e.preventDefault();}, {passive:false});
+sliderHandle.addEventListener('touchmove', e=>{if(isDraggingSlider) updateSliderOverlay(e.touches[0].clientX);}, {passive:false});
+
+overlayContainer.addEventListener('mousedown', e=>{
+  if(isDraggingSlider) return;
+  isDraggingView=true;
+  dragStartX=e.clientX; dragStartY=e.clientY;
+  dragLastX=posX; dragLastY=posY;
+  overlayContainer.style.cursor='grabbing';
+  e.preventDefault();
+});
+document.addEventListener('mouseup', ()=>{if(isDraggingView){isDraggingView=false;overlayContainer.style.cursor='default';}});
+document.addEventListener('mousemove', e=>{if(isDraggingView){posX = dragLastX + (e.clientX - dragStartX); posY = dragLastY + (e.clientY - dragStartY); updateBackgroundPositionOverlay();}});
+
+overlayContainer.addEventListener('touchstart', e=>{
+  if(e.target===sliderHandle) return;
+  isDraggingView=true;
+  dragStartX=e.touches[0].clientX; dragStartY=e.touches[0].clientY;
+  dragLastX=posX; dragLastY=posY;
+}, {passive:false});
+overlayContainer.addEventListener('touchmove', e=>{
+  if(!isDraggingView) return;
+  e.preventDefault();
+  posX = dragLastX + (e.touches[0].clientX - dragStartX);
+  posY = dragLastY + (e.touches[0].clientY - dragStartY);
+  updateBackgroundPositionOverlay();
+}, {passive:false});
+overlayContainer.addEventListener('touchend', e=>{isDraggingView=false;}, {passive:false});
+
+// MOBILE-SPECIFIC MIN ZOOM FUNCTION
+function getMinScale() {
+  return window.innerWidth < 700 ? 3.2 : 1; // Mobile minimum = 3.2
+}
+
+// Zoom
+overlayContainer.addEventListener('wheel', e=>{
+  e.preventDefault();
+  scale = clamp(scale - e.deltaY * 0.0015, getMinScale(), 5);
+  updateBackgroundPositionOverlay();
+}, { passive:false });
+
+// Pinch zoom
+let lastDistance = null;
+overlayContainer.addEventListener('touchmove', e=>{
+  if(e.touches.length===2){
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const distance = Math.hypot(dx, dy);
+    if(lastDistance){
+      const delta = (distance - lastDistance) * 0.01;
+      scale = clamp(scale + delta, getMinScale(), 5);
+      updateBackgroundPositionOverlay();
+    }
+    lastDistance = distance;
+  } else {
+    lastDistance = null;
+  }
+}, { passive:false });
+
+// Update Background
+function updateBackgroundPositionOverlay(){
+  const rect = overlayContainer.getBoundingClientRect();
+  const imgAspect = 1920/1080;
+  const containerAspect = rect.width/rect.height;
+  let bgWidth,bgHeight;
+
+  if(containerAspect>imgAspect){
+    bgHeight = rect.height*scale;
+    bgWidth = bgHeight*imgAspect;
+  }else{
+    bgWidth = rect.width*scale;
+    bgHeight = bgWidth/imgAspect;
+  }
+
+  const maxShiftX = (bgWidth - rect.width)/2;
+  const maxShiftY = (bgHeight - rect.height)/2;
+  posX = clamp(posX,-maxShiftX,maxShiftX);
+  posY = clamp(posY,-maxShiftY,maxShiftY);
+
+  const posXPercent = 50 - (posX/bgWidth*100);
+  const posYPercent = 50 - (posY/bgHeight*100);
+
+  sliderOverlayLeft.style.backgroundSize = `${bgWidth}px ${bgHeight}px`;
+  sliderOverlayRight.style.backgroundSize = `${bgWidth}px ${bgHeight}px`;
+  sliderOverlayLeft.style.backgroundPosition = `${posXPercent}% ${posYPercent}%`;
+  sliderOverlayRight.style.backgroundPosition = `${posXPercent}% ${posYPercent}%`;
+}
+
+// Open/Close Slider Overlay
+document.getElementById('sliderPreview').addEventListener('click', ()=>{
+  ['V1.png','V2.png'].forEach(src => { const i = new Image(); i.src = src; });
+  sliderOverlay.style.display='block';
+  document.body.style.overflow='hidden';
+  requestAnimationFrame(()=>{ setInitialZoom(); updateBackgroundPositionOverlay(); });
+});
+document.getElementById('closeSliderOverlay').addEventListener('click', ()=>{
+  sliderOverlay.style.display='none';
+  document.body.style.overflow='';
+});
+
+// Initial Zoom & Aspect Ratio
+function setInitialZoom(){
+  if(window.innerWidth < 700){
+    overlayContainer.style.aspectRatio = "9/16";
+    overlayContainer.style.width = "90%";
+    scale = 3.2; // Mobile default zoom
+  } else {
+    overlayContainer.style.aspectRatio = "16/9";
+    overlayContainer.style.width = "90%";
+    scale = 1; // Desktop default zoom
+  }
+  posX = 0;
+  posY = 0;
+  updateBackgroundPositionOverlay();
+}
+window.addEventListener('resize', setInitialZoom);
+setInitialZoom();
+
+
+// =======================
+// Panorama Integration - with resource switching
+// =======================
+const panoOverlay = document.getElementById('panoOverlay');
+const panoContainer = document.getElementById('panoContainer');
+const panoFade = document.getElementById('panoFadeOverlay');
+
+let panoViewer = null;
+let panoramas = [];        // will hold PANOLENS.ImagePanorama objects
+let panoInitialized = false;
+let panoLoader = null;
+let panoCamera = null;
+let panoTextures = [];     // store loaded textures (for disposal)
+let panoPreloadPromise = null;
+
+// Panorama file list (keeps same filenames)
+const panoramaPaths = [
+  'pano/pano1.jpg',
+  'pano/pano2.jpg',
+  'pano/pano3.jpg',
+  'pano/pano4.jpg',
+  'pano/pano5.jpg',
+  'pano/pano6.jpg',
+  'pano/pano7.jpg',
+  'pano/add1.jpg',
+  'pano/add2.jpg'
+];
+
+// createPanoramaViewer is refactored into two phases:
+// 1) preload all panorama textures (returns Promise resolved when done)
+// 2) create viewer, create PANOLENS.ImagePanorama instances from loaded texture.image.src,
+//    attach hotspots, add to viewer and show overlay
+
+// 1) Preload all panorama textures; returns Promise that resolves with array of textures (or placeholders).
+function preloadAllPanoramas() {
+  // If a preload is already in progress, return that promise
+  if (panoPreloadPromise) return panoPreloadPromise;
+
+  panoPreloadPromise = new Promise((resolve) => {
+    // Enable THREE cache to avoid re-decoding multiple times (helps during session)
+    try { if (THREE.Cache) THREE.Cache.enabled = true; } catch(e){}
+
+    panoLoader = new THREE.TextureLoader();
+    let loadedCount = 0;
+    const total = panoramaPaths.length;
+    panoTextures = new Array(total);
+
+    for (let i = 0; i < total; i++) {
+      ((index) => {
+        panoLoader.load(
+          panoramaPaths[index],
+          texture => {
+            panoTextures[index] = texture;
+            loadedCount++;
+            // If all done, resolve
+            if (loadedCount === total) resolve(panoTextures);
+          },
+          undefined,
+          err => {
+            console.error(`Failed to load ${panoramaPaths[index]}:`, err);
+            // Create a placeholder texture by creating ImagePanorama from path (Panolens will try to load)
+            panoTextures[index] = null; // mark null so we fallback later
+            loadedCount++;
+            if (loadedCount === total) resolve(panoTextures);
+          }
+        );
+      })(i);
+    }
+  });
+
+  return panoPreloadPromise;
+}
+
+// create viewer and make it visible; assumes panoTextures is filled (some entries may be null)
+function createAndShowPanoramaViewer() {
+  // Build PANOLENS panoramas array from preloaded textures (or path fallback)
+  panoramas = new Array(panoramaPaths.length);
+
+  for (let i = 0; i < panoramaPaths.length; i++) {
+    try {
+      if (panoTextures[i] && panoTextures[i].image && panoTextures[i].image.src) {
+        panoramas[i] = new PANOLENS.ImagePanorama(panoTextures[i].image.src);
+      } else {
+        // fallback to direct path - Panolens will attempt its own load
+        panoramas[i] = new PANOLENS.ImagePanorama(panoramaPaths[i]);
+      }
+    } catch(e){
+      panoramas[i] = new PANOLENS.ImagePanorama(panoramaPaths[i]);
+    }
+  }
+
+  // create the viewer
+  try {
+    panoViewer = new PANOLENS.Viewer({
+      container: panoContainer,
+      controlBar: true,
+      autoHideInfospot: false
+    });
+  } catch(e){
+    console.error('Failed to create PANOLENS.Viewer:', e);
+    panoViewer = null;
+  }
+
+  if (panoViewer) {
+    panoCamera = panoViewer.getCamera();
+
+    // Setup hotspots (same as original)
+    setupPanoramaHotspots();
+
+    // Add all panoramas to viewer
+    try {
+      panoViewer.add(...panoramas);
+    } catch(e){
+      // fallback: add individually
+      panoramas.forEach(p=> { try { panoViewer.add(p); } catch(_){} });
+    }
+
+    // Show overlay now that viewer and panoramas are ready
+    panoOverlay.style.display = 'block';
+    // ensure page cannot scroll
+    document.body.style.overflow = 'hidden';
+
+    if (panoViewer) {
+    // erzwinge Renderer Resize und erstes Rendern
+      panoViewer.onWindowResize(); // passt Viewport an
+      requestAnimationFrame(() => {
+        panoViewer.render();
+      });
+    }
+    if ('ontouchstart' in window && panoViewer && panoContainer) {
+      const event = new Event('touchstart', { bubbles: true });
+      panoContainer.dispatchEvent(event);
+    }
+    
+    try { panoViewer.setPanorama(panoramas[7]); } catch (e) { /* ignore */ }
+    try { panoViewer.tweenControlCenter(new THREE.Vector3(10, 1, 1), 0); } catch(e){}
+
+    // mark initialized
+    panoInitialized = true;
+  } else {
+    // If viewer could not be created, show overlay as a fallback (so user sees something)
+    panoOverlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    panoInitialized = false;
+  }
+}
+
+// Setup hotspots function is kept intact (uses panoramas[] array)
+function setupPanoramaHotspots() {
+  // create infospots (hotspot images loaded from pano/ folder)
+  const spotAddto1 = new PANOLENS.Infospot(250, 'pano/Hotspot18.png');
+  spotAddto1.position.set(4000, -200, -650);
+  const spotAddtoUp = new PANOLENS.Infospot(250, 'pano/UP7.png');
+  spotAddtoUp.position.set(5000, 4000, 500);
+
+  const spot1to2 = new PANOLENS.Infospot(250, 'pano/Hotspot.png');
+  spot1to2.position.set(4000, -150, -1500);
+  const spot1toAdd = new PANOLENS.Infospot(250, 'pano/Hotspot17.png');
+  spot1toAdd.position.set(-3200, -200, 4000);
+  const spot1toUP = new PANOLENS.Infospot(250, 'pano/UP.png');
+  spot1toUP.position.set(2000, 4000, -800);
+
+  const spot2to1 = new PANOLENS.Infospot(250, 'pano/Hotspot2.png');
+  spot2to1.position.set(-4000, -200, -1800);
+  const spot2to3 = new PANOLENS.Infospot(250, 'pano/Hotspot3.png');
+  spot2to3.position.set(4000, -200, -565);
+  const spot2toUP = new PANOLENS.Infospot(250, 'pano/UP1.png');
+  spot2toUP.position.set(-1000, 4000, -300);
+
+  const spot3to2 = new PANOLENS.Infospot(250, 'pano/Hotspot4.png');
+  spot3to2.position.set(4000, -200, -20);
+  const spot3to4 = new PANOLENS.Infospot(250, 'pano/Hotspot5.png');
+  spot3to4.position.set(-3000, -1800, 3000);
+  const spot3toUP = new PANOLENS.Infospot(250, 'pano/UP2.png');
+  spot3toUP.position.set(5000, 4000, 200);
+
+  const spot4to3 = new PANOLENS.Infospot(250, 'pano/Hotspot6.png');
+  spot4to3.position.set(3000, 1200, -3000);
+  const spot4to5 = new PANOLENS.Infospot(250, 'pano/Hotspot7.png');
+  spot4to5.position.set(350, -200, -5000);
+  const spot4toUP = new PANOLENS.Infospot(250, 'pano/UP3.png');
+  spot4toUP.position.set(4500, 5000, -2000);
+
+  const spot5to4 = new PANOLENS.Infospot(250, 'pano/Hotspot8.png');
+  spot5to4.position.set(-400, 150, 5000);
+  const spot5toAdd2 = new PANOLENS.Infospot(250, 'pano/Hotspot9.png');
+  spot5toAdd2.position.set(4000, -100, 500);
+  const spot5toUP = new PANOLENS.Infospot(250, 'pano/UP4.png');
+  spot5toUP.position.set(2000, 4500, 4000);
+
+  const spotAdd2to6 = new PANOLENS.Infospot(250, 'pano/Hotspot19.png');
+  spotAdd2to6.position.set(450, -100, -3500);
+  const spotAdd2to5 = new PANOLENS.Infospot(250, 'pano/Hotspot20.png');
+  spotAdd2to5.position.set(700, 0, 4000);
+  const spotAdd2toUP = new PANOLENS.Infospot(250, 'pano/Hotspot21.png');
+  spotAdd2toUP.position.set(4500, 5000, -100);
+
+  const spot6toAdd2 = new PANOLENS.Infospot(250, 'pano/Hotspot10.png');
+  spot6toAdd2.position.set(-650, -100, 3500);
+  const spot6to1 = new PANOLENS.Infospot(250, 'pano/Home.png');
+  spot6to1.position.set(750, 0, -3000);
+  const spot6toUP = new PANOLENS.Infospot(250, 'pano/UP5.png');
+  spot6toUP.position.set(3500, 4500, 1500);
+
+  const spotUPto1 = new PANOLENS.Infospot(250, 'pano/Hotspot11.png');
+  spotUPto1.position.set(-1200, -5000, 500);
+  const spotUPto2 = new PANOLENS.Infospot(250, 'pano/Hotspot12.png');
+  spotUPto2.position.set(-350, -5000, -600);
+  const spotUPto3 = new PANOLENS.Infospot(250, 'pano/Hotspot13.png');
+  spotUPto3.position.set(-100, -5000, -1550);
+  const spotUPto4 = new PANOLENS.Infospot(250, 'pano/Hotspot14.png');
+  spotUPto4.position.set(-450, -5000, -2250);
+  const spotUPto5 = new PANOLENS.Infospot(250, 'pano/Hotspot15.png');
+  spotUPto5.position.set(3100, -5000, -1100);
+  const spotUPto6 = new PANOLENS.Infospot(250, 'pano/Hotspot16.png');
+  spotUPto6.position.set(1200, -5000, 2200);
+  const spotUptoAdd = new PANOLENS.Infospot(250, 'pano/Hotspot22.png');
+  spotUptoAdd.position.set(-1500, -5000, 2050);
+  const spotUptoAdd2 = new PANOLENS.Infospot(250, 'pano/Hotspot23.png');
+  spotUptoAdd2.position.set(2065, -5000, 1200);
+
+  // Attach events (mirror your original mapping)
+  spot1to2.addEventListener('click', () => switchPanorama(spot1to2, panoramas[1], spot2to1));
+  spot1toUP.addEventListener('click', () => switchPanorama(spot1toUP, panoramas[6], spotUPto1));
+  spot1toAdd.addEventListener('click', () => switchPanorama(spot1toAdd, panoramas[7], spotAddto1));
+
+  spot2to1.addEventListener('click', () => switchPanorama(spot2to1, panoramas[0], spot1to2));
+  spot2to3.addEventListener('click', () => switchPanorama(spot2to3, panoramas[2], spot3to2));
+  spot2toUP.addEventListener('click', () => switchPanorama(spot2toUP, panoramas[6], spotUPto2));
+
+  spot3to2.addEventListener('click', () => switchPanorama(spot3to2, panoramas[1], spot2to3));
+  spot3to4.addEventListener('click', () => switchPanorama(spot3to4, panoramas[3], spot4to3));
+  spot3toUP.addEventListener('click', () => switchPanorama(spot3toUP, panoramas[6], spotUPto3));
+
+  spot4to3.addEventListener('click', () => switchPanorama(spot4to3, panoramas[2], spot3to4));
+  spot4to5.addEventListener('click', () => switchPanorama(spot4to5, panoramas[4], spot5to4));
+  spot4toUP.addEventListener('click', () => switchPanorama(spot4toUP, panoramas[6], spotUPto4));
+
+  spot5to4.addEventListener('click', () => switchPanorama(spot5to4, panoramas[3], spot4to5));
+  spot5toAdd2.addEventListener('click', () => switchPanorama(spot5toAdd2, panoramas[8], spotAdd2to5));
+  spot5toUP.addEventListener('click', () => switchPanorama(spot5toUP, panoramas[6], spotUPto5));
+
+  spot6toAdd2.addEventListener('click', () => switchPanorama(spot6toAdd2, panoramas[8], spotAdd2to6));
+  spot6to1.addEventListener('click', () => switchPanorama(spot6to1, panoramas[7], spotAddto1));
+  spot6toUP.addEventListener('click', () => switchPanorama(spot6toUP, panoramas[6], spotUPto6));
+
+  spotUPto1.addEventListener('click', () => switchPanorama(spotUPto1, panoramas[0], spot1toUP));
+  spotUPto2.addEventListener('click', () => switchPanorama(spotUPto2, panoramas[1], spot2toUP));
+  spotUPto3.addEventListener('click', () => switchPanorama(spotUPto3, panoramas[2], spot3toUP));
+  spotUPto4.addEventListener('click', () => switchPanorama(spotUPto4, panoramas[3], spot4toUP));
+  spotUPto5.addEventListener('click', () => switchPanorama(spotUPto5, panoramas[4], spot5toUP));
+  spotUPto6.addEventListener('click', () => switchPanorama(spotUPto6, panoramas[5], spot6toUP));
+  spotUptoAdd.addEventListener('click', () => switchPanorama(spotUptoAdd, panoramas[7], spotAddtoUp));
+  spotUptoAdd2.addEventListener('click', () => switchPanorama(spotUptoAdd2, panoramas[8], spotAdd2toUP));
+
+  spotAddto1.addEventListener('click', () => switchPanorama(spotAddto1, panoramas[0], spot1toAdd));
+  spotAddtoUp.addEventListener('click', () => switchPanorama(spotAddtoUp, panoramas[6], spotUptoAdd));
+
+  spotAdd2to5.addEventListener('click', () => switchPanorama(spotAdd2to5, panoramas[4], spot5toAdd2));
+  spotAdd2to6.addEventListener('click', () => switchPanorama(spotAdd2to6, panoramas[5], spot6toAdd2));
+  spotAdd2toUP.addEventListener('click', () => switchPanorama(spotAdd2toUP, panoramas[6], spotUptoAdd2));
+
+  // Add hotspots to panoramas
+  panoramas[0].add(spot1toAdd, spot1to2, spot1toUP);
+  panoramas[1].add(spot2to1, spot2to3, spot2toUP);
+  panoramas[2].add(spot3to2, spot3to4, spot3toUP);
+  panoramas[3].add(spot4to3, spot4to5, spot4toUP);
+  panoramas[4].add(spot5to4, spot5toAdd2, spot5toUP);
+  panoramas[5].add(spot6toAdd2, spot6to1, spot6toUP);
+  panoramas[6].add(spotUPto1, spotUPto2, spotUPto3, spotUPto4, spotUPto5, spotUPto6, spotUptoAdd, spotUptoAdd2);
+  panoramas[7].add(spotAddto1, spotAddtoUp);
+  panoramas[8].add(spotAdd2to5, spotAdd2to6, spotAdd2toUP);
+}
+
+// transitions & switch (keeps original behavior)
+function switchPanorama(hotspot, targetPanorama, correspondingTargetHotspot) {
+  try {
+    panoViewer.tweenControlCenter(hotspot.position, 1000, TWEEN.Easing.Quadratic.InOut);
+  } catch(e){}
+
+  const startFov = panoCamera ? panoCamera.fov : 70;
+  const zoomDuration = 1000;
+  let startTime = null;
+
+  function animateZoom(time) {
+    if (!startTime) startTime = time;
+    const elapsed = time - startTime;
+    const progress = Math.min(elapsed / zoomDuration, 1);
+    if (panoCamera) {
+      panoCamera.fov = startFov + (30 - startFov) * progress;
+      panoCamera.updateProjectionMatrix();
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animateZoom);
+    } else {
+      panoFade.style.opacity = 1;
+
+      setTimeout(() => {
+        try { panoViewer.setPanorama(targetPanorama); } catch (e) {}
+        if (correspondingTargetHotspot && panoViewer) {
+          try { panoViewer.tweenControlCenter(correspondingTargetHotspot.position, 0); } catch (e) {}
+        }
+        if (panoCamera) {
+          panoCamera.fov = startFov;
+          panoCamera.updateProjectionMatrix();
+        }
+
+        setTimeout(() => {
+          panoFade.style.opacity = 0;
+        }, 300);
+      }, 500);
+    }
+  }
+
+  requestAnimationFrame(animateZoom);
+}
+
+// OPEN panorama workflow:
+// 1) Destroy canvas resources to free memory
+// 2) Preload all panorama textures
+// 3) Create viewer + panoramas + hotspots
+// 4) Show overlay when everything is ready
+document.getElementById('panoPreview').addEventListener('click', async ()=>{
+  // 1) Freigeben aller sonstigen Ressourcen vor Panolens
+  try {
+    destroyCanvasSequence();
+    resetYouTubePlayer();
+    softDestroySliderOverlay();
+  } catch(e){
+    console.warn('Fehler beim Freigeben von Ressourcen vor Panolens:', e);
+  }
+
+  // 2) Panoramen preloaden
+  try {
+    await preloadAllPanoramas();
+  } catch(e){
+    console.warn('Preload der Panoramen fehlgeschlagen:', e);
+  }
+
+  // 3) Panolens Viewer erstellen
+  try {
+    createAndShowPanoramaViewer();
+  } catch(e){
+    console.error('Fehler beim Erstellen des Panolens-Viewers:', e);
+    panoOverlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+});
+
+// CLOSE panorama workflow:
+// Destroy Panolens viewer, force context loss, clear textures & arrays, then re-init canvas
+document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
+  // hide overlay immediately for UX
+  panoOverlay.style.display = 'none';
+  document.body.style.overflow = '';
+
+  // destroy viewer and free resources
+  try {
+    if (panoViewer) {
+      // remove panoramas from viewer
+      try { panoViewer.remove(...panoramas); } catch(e){}
+
+      // attempt to dispose renderer if present and lose context to free GPU memory
+      try {
+        const renderer = panoViewer.renderer;
+        if (renderer) {
+          const gl = renderer.getContext && renderer.getContext();
+          // try dispose renderer if method exists
+          try { if(renderer.dispose) renderer.dispose(); } catch(e){}
+          if (gl && gl.getExtension) {
+            const loseExt = gl.getExtension('WEBGL_lose_context') || gl.getExtension('MOZ_WEBGL_lose_context') || gl.getExtension('WEBKIT_WEBGL_lose_context');
+            if (loseExt) {
+              try { loseExt.loseContext(); } catch(e){}
+            }
+          }
+          // remove canvas/dom element
+          try { 
+            if (renderer.domElement && renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
+            if (renderer.forceContextLoss) renderer.forceContextLoss();
+          } catch(e){}
+        }
+      } catch (e) {
+        console.warn('Error while disposing renderer:', e);
+      }
+    }
+  } catch (e) {
+    console.warn('Error while removing panoramas/viewer:', e);
+  }
+
+  // Clear Panolens/Three references and attempt to free memory
+  try {
+    // dispose panorama objects if API exists
+    if (panoramas && panoramas.length) {
+      panoramas.forEach(p => {
+        try { if(p.dispose) p.dispose(); } catch(e){}
+      });
+    }
+  } catch(e){}
+
+  // clear arrays and references
+  panoramas.length = 0;
+  panoramas = [];
+  panoViewer = null;
+  panoCamera = null;
+
+  // clear preloaded textures
+  try {
+    if (panoTextures && panoTextures.length) {
+      panoTextures.forEach(tex => {
+        try {
+          if (tex && tex.image && tex.image.src) {
+            // unset src for GC
+            tex.image.src = '';
+          }
+        } catch(e){}
+      });
+    }
+  } catch(e){}
+
+  panoTextures = [];
+
+  // clear THREE cache if available
+  try { if (THREE.Cache && THREE.Cache.clear) THREE.Cache.clear(); } catch(e){}
+
+  // reset the preload promise so next open will preload again
+  panoPreloadPromise = null;
+
+  // clear panoContainer DOM
+  try { panoContainer.innerHTML = ''; } catch(e){}
+
+  // finally re-init the canvas/sequence to restore main page resources
+  try {
+    // small timeout to let GPU/gl finish context loss
+    setTimeout(() => {
+      initCanvasSequence();
+      restoreYouTubePlayer();
+      // Slider-Bilder zurücksetzen wie beim ersten Klick
+      sliderOverlayLeft.style.backgroundImage = 'url("V1.png")';
+      sliderOverlayRight.style.backgroundImage = 'url("V2.png")';
+      sliderHandle.style.left = '50%';
+      sliderOverlayRight.style.clipPath = 'inset(0 0 0 50%)';
+      scale = window.innerWidth < 700 ? 3.2 : 1;
+      posX = 0;
+      posY = 0;
+      updateBackgroundPositionOverlay();
+    }, 100);
+  } catch(e){
+    console.warn('Error while reinitializing canvas sequence:', e);
+  }
+});
 </script>
-
 </body>
 </html>
+
+
