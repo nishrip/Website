@@ -115,36 +115,37 @@ const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   
 function updateCanvasSize() {
   if (isMobile) {
-    if (!canvas.dataset.initialized) {
-      const viewportHeight = window.innerHeight;
-      const buffer = 50;
-      canvas.width = window.innerWidth;
-      canvas.height = viewportHeight + buffer;
-      canvas.style.position = "fixed";
-      canvas.style.top = "0";
-      canvas.dataset.initialized = 'true'; // nur einmal initial
-    }
+    // Mobile: einmalig setzen, nicht bei jeder URL-Leiste-Aktion
+    const viewportHeight = window.innerHeight;
+    const buffer = 50; // bleibt fix
+    canvas.width = window.innerWidth;
+    canvas.height = viewportHeight + buffer;
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
   } else {
-    // Desktop: volle Fensterhöhe
+    // Desktop: volle Fensterhöhe dynamisch
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     canvas.style.position = "fixed";
     canvas.style.top = "0";
   }
 }
+
 updateCanvasSize();
 
-window.addEventListener("resize", () => {
-  updateCanvasSize();
-  const img = images?.[currentFrame];
-  if (img?.complete) drawImageCover(img);
-});
+if (!isMobile) {
+  window.addEventListener("resize", () => {
+    updateCanvasSize();
+    const img = images?.[currentFrame];
+    if (img?.complete) drawImageCover(img);
+  });
 
-window.addEventListener("orientationchange", () => {
-  updateCanvasSize();
-  const img = images?.[currentFrame];
-  if (img?.complete) drawImageCover(img);
-});
+  window.addEventListener("orientationchange", () => {
+    updateCanvasSize();
+    const img = images?.[currentFrame];
+    if (img?.complete) drawImageCover(img);
+  });
+}
 
   
 // Frame sequence config (kept as in original)
@@ -952,4 +953,5 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
 </script>
 </body>
 </html>
+
 
