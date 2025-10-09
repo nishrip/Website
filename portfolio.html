@@ -133,17 +133,18 @@ function updateCanvasSize() {
 
 updateCanvasSize();
 
-if (!isMobile) {
-  window.addEventListener("resize", () => {
+// Nur Desktop: echte Resize-Events
+if(!isMobile){
+  window.addEventListener("resize", ()=>{
     updateCanvasSize();
-    const img = images?.[currentFrame];
-    if (img?.complete) drawImageCover(img);
+    const img = images[currentFrame];
+    if(img?.complete) drawImageCover(img);
   });
 
-  window.addEventListener("orientationchange", () => {
-    //updateCanvasSize();
-    const img = images?.[currentFrame];
-    if (img?.complete) drawImageCover(img);
+  window.addEventListener("orientationchange", ()=>{
+    updateCanvasSize();
+    const img = images[currentFrame];
+    if(img?.complete) drawImageCover(img);
   });
 }
 
@@ -955,6 +956,7 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
 </script>
 </body>
 </html>
+
 
 
 
