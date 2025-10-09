@@ -111,6 +111,41 @@
 const canvas = document.getElementById("sequence");
 const ctx = canvas.getContext("2d");
 
+const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  
+function updateCanvasSize() {
+  if (isMobile) {
+    // 🟢 Mobile: +50px Puffer wegen URL-Leiste
+    const viewportHeight = window.innerHeight;
+    const urlBarHeight = window.screen.height - viewportHeight;
+    const buffer = 50;
+    canvas.width = window.innerWidth;
+    canvas.height = viewportHeight + urlBarHeight + buffer;
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
+  } else {
+    // 💻 Desktop: volle Fensterhöhe (wie kleines HTML)
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
+  }
+}
+updateCanvasSize();
+
+window.addEventListener("resize", () => {
+  updateCanvasSize();
+  const img = images?.[currentFrame];
+  if (img?.complete) drawImageCover(img);
+});
+
+window.addEventListener("orientationchange", () => {
+  updateCanvasSize();
+  const img = images?.[currentFrame];
+  if (img?.complete) drawImageCover(img);
+});
+
+  
 // Frame sequence config (kept as in original)
 const frameCount = 122;
 let images = []; // will contain Image objects or nulls
@@ -127,6 +162,8 @@ const getFramePath = i => `frames1/${(i + 120).toString().padStart(4, '0')}.jpg`
 // draw (keeps same visuals)
 function drawImageCover(img){
   // keep same behaviour: set canvas size per draw to keep same display
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
   const scale = Math.max(canvas.width/img.width, canvas.height/img.height);
   const x = (canvas.width/2)-(img.width/2)*scale;
   const y = (canvas.height/2)-(img.height/2)*scale;
@@ -145,28 +182,6 @@ function loadFrame(i){
   }
   return images[i];
 }
-
-const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-function updateCanvasSize() {
-  if(isMobile){
-    const viewportHeight = window.innerHeight;
-    const urlBarHeight = window.screen.height - viewportHeight;
-    const buffer = 50; // Puffer, damit Bild nicht abgeschnitten wird
-    canvas.width = window.innerWidth;
-    canvas.height = viewportHeight + urlBarHeight + buffer;
-    canvas.style.top = "0px"; // Canvas bleibt oben
-  } else {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-}
-
-// Resize- und OrientationChange-Listener
-window.addEventListener("resize", updateCanvasSize);
-window.addEventListener("orientationchange", updateCanvasSize);
-
-
 
 // preload range around center
 function preloadNearbyFrames(center, range=10){
@@ -201,27 +216,34 @@ function initCanvasSequence(){
   if(isCanvasInitialized) return;
   isCanvasInitialized = true;
 
-  // Zwinge Canvas-Größe zu aktualisieren
-  updateCanvasSize(); // ← hier direkt aufrufen
+  // named scroll handler so we can remove it later
+ let lastScrollTime = 0;
+  scrollHandler = () => {
+    const now = performance.now();
+    if (now - lastScrollTime < 16) return; // max 60fps
+    lastScrollTime = now;
 
-  // Scroll / Resize Handler
-  let lastScrollTime = 0;
-  scrollHandler = () => { /* unverändert */ };
+    const scrollTop = window.scrollY;
+    const scrollHeight = document.body.scrollHeight - window.innerHeight;
+    const scrollFraction = scrollTop / (scrollHeight || 1);
+    targetFrame = Math.min(frameCount-1, Math.floor(scrollFraction * frameCount));
+  };
+
   resizeHandler = () => { if(images[currentFrame]?.complete) drawImageCover(images[currentFrame]); };
 
   window.addEventListener('scroll', scrollHandler, { passive: true });
   window.addEventListener('resize', resizeHandler);
 
-  // Frames initialisieren
+  // initialize frames (keeps exact behavior: preload around 0)
   images = new Array(frameCount);
   currentFrame = 0;
   targetFrame = 0;
   loadFrame(0);
   preloadNearbyFrames(0,20);
 
+  // start animation loop
   if(!animationId) animateFrames();
 }
-
 
 // DESTROY canvas resources: cancels animation, removes listeners, clears image src references
 function destroyCanvasSequence(){
@@ -254,6 +276,8 @@ function destroyCanvasSequence(){
   // clear canvas drawing and size to release GPU memory region
   try {
     ctx.clearRect(0,0,canvas.width,canvas.height);
+    canvas.width = 0;
+    canvas.height = 0;
   } catch(e){}
 }
   
@@ -316,7 +340,7 @@ function softDestroySliderOverlay() {
 }
 
 // Start by initializing canvas as original page would
-initCanvasSequence(); 
+initCanvasSequence(); // gpt schaue hier, warum ist die funktion hier ausgeführt?
 
 
 // =======================
@@ -908,7 +932,6 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
   try {
     // small timeout to let GPU/gl finish context loss
     setTimeout(() => {
-      updateCanvasSize(); 
       initCanvasSequence();
       restoreYouTubePlayer();
       // Slider-Bilder zurücksetzen wie beim ersten Klick
