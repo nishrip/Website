@@ -115,16 +115,17 @@ const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   
 function updateCanvasSize() {
   if (isMobile) {
-    // 🟢 Mobile: +50px Puffer wegen URL-Leiste
-    const viewportHeight = window.innerHeight;
-    const urlBarHeight = window.screen.height - viewportHeight;
-    const buffer = 50;
-    canvas.width = window.innerWidth;
-    canvas.height = viewportHeight + urlBarHeight + buffer;
-    canvas.style.position = "fixed";
-    canvas.style.top = "0";
+    if (!canvas.dataset.initialized) {
+      const viewportHeight = window.innerHeight;
+      const buffer = 50;
+      canvas.width = window.innerWidth;
+      canvas.height = viewportHeight + buffer;
+      canvas.style.position = "fixed";
+      canvas.style.top = "0";
+      canvas.dataset.initialized = 'true'; // nur einmal initial
+    }
   } else {
-    // 💻 Desktop: volle Fensterhöhe (wie kleines HTML)
+    // Desktop: volle Fensterhöhe
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     canvas.style.position = "fixed";
@@ -951,3 +952,4 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
 </script>
 </body>
 </html>
+
