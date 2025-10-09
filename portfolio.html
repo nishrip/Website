@@ -141,7 +141,7 @@ if (!isMobile) {
   });
 
   window.addEventListener("orientationchange", () => {
-    updateCanvasSize();
+    //updateCanvasSize();
     const img = images?.[currentFrame];
     if (img?.complete) drawImageCover(img);
   });
@@ -163,14 +163,16 @@ const getFramePath = i => `frames1/${(i + 120).toString().padStart(4, '0')}.jpg`
 
 // draw (keeps same visuals)
 function drawImageCover(img){
-  // keep same behaviour: set canvas size per draw to keep same display
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const scale = Math.max(canvas.width/img.width, canvas.height/img.height);
-  const x = (canvas.width/2)-(img.width/2)*scale;
-  const y = (canvas.height/2)-(img.height/2)*scale;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.drawImage(img, x, y, img.width*scale, img.height*scale);
+    canvas.width = window.innerWidth;
+    if (!isMobile) {
+        canvas.height = window.innerHeight;
+    }
+    // mobile: height bleibt fix, Position bleibt top:0
+    const scale = Math.max(canvas.width/img.width, canvas.height/img.height);
+    const x = (canvas.width/2)-(img.width/2)*scale;
+    const y = (canvas.height/2)-(img.height/2)*scale;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(img, x, y, img.width*scale, img.height*scale);
 }
 
 // load single frame if not present
@@ -953,5 +955,6 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
 </script>
 </body>
 </html>
+
 
 
