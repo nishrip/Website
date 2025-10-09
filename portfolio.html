@@ -234,10 +234,12 @@ function initCanvasSequence(){
     targetFrame = Math.min(frameCount-1, Math.floor(scrollFraction * frameCount));
   };
 
+  if (!isMobile) {
   resizeHandler = () => { if(images[currentFrame]?.complete) drawImageCover(images[currentFrame]); };
+  window.addEventListener('resize', resizeHandler);
+}
 
   window.addEventListener('scroll', scrollHandler, { passive: true });
-  window.addEventListener('resize', resizeHandler);
 
   // initialize frames (keeps exact behavior: preload around 0)
   images = new Array(frameCount);
@@ -956,7 +958,3 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
 </script>
 </body>
 </html>
-
-
-
-
