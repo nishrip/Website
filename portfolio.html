@@ -940,6 +940,8 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
     // small timeout to let GPU/gl finish context loss
     setTimeout(() => {
       initCanvasSequence();
+      updateCanvasSize(); // ← Canvas wieder auf volle Größe bringen
+      loadFrame(0);
       restoreYouTubePlayer();
       // Slider-Bilder zurücksetzen wie beim ersten Klick
       sliderOverlayLeft.style.backgroundImage = 'url("V1.png")';
@@ -958,3 +960,4 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
 </script>
 </body>
 </html>
+
