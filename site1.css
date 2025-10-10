@@ -36,6 +36,122 @@ section .content {
   text-align: center;
 }
 
+.photo-gallery {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9; /* fixed display area */
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.photo-gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+.photo-gallery img:hover {
+  transform: scale(1.02);
+}
+
+/* Arrows for small gallery */
+.photo-gallery button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 5;
+  width: 50px;
+  height: 50px;
+}
+.photo-gallery button::before {
+  content: "";
+  display: block;
+  width: 0; height: 0;
+  margin: auto;
+  border-style: solid;
+}
+#prevPhoto::before {
+  border-width: 20px 26px 20px 0;
+  border-color: transparent white transparent transparent;
+}
+#nextPhoto::before {
+  border-width: 20px 0 20px 26px;
+  border-color: transparent transparent transparent white;
+}
+#prevPhoto { left: 10px; }
+#nextPhoto { right: 10px; }
+
+/* ---------- Fullscreen Overlay ---------- */
+.fullscreen {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.3s ease;
+}
+.fullscreen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.fullscreen img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+/* Close button */
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  font-size: 42px;
+  color: white;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+  line-height: 1;
+}
+
+/* Arrows inside fullscreen */
+.fullscreen .arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  width: 64px;
+  height: 64px;
+  cursor: pointer;
+}
+.fullscreen .arrow.left { left: 20px; }
+.fullscreen .arrow.right { right: 20px; }
+.fullscreen .arrow::before {
+  content: "";
+  display: block;
+  width: 0; height: 0;
+  margin: auto;
+  border-style: solid;
+}
+.fullscreen .arrow.left::before {
+  border-width: 20px 26px 20px 0;
+  border-color: transparent white transparent transparent;
+}
+.fullscreen .arrow.right::before {
+  border-width: 20px 0 20px 26px;
+  border-color: transparent transparent transparent white;
+}
+
 .video-wrapper {
   width: 100%;
   height: 300px;

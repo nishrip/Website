@@ -40,9 +40,9 @@
     <div class="content">
       <h2>Einzelfotos</h2>
       <div class="photo-gallery" style="position: relative;">
-        <button id="prevPhoto" style="position:absolute;left:10px;top:50%;">&#10094;</button>
-        <img id="galleryImage" src="images/NeuGarage_0001.png" alt="Gallery" style="width:100%;border-radius:10px;">
-        <button id="nextPhoto" style="position:absolute;right:10px;top:50%;">&#10095;</button>
+        <button id="prevPhoto"></button>
+        <img id="galleryImage" src="images/foto (1).jpg" alt="Gallery Image">
+        <button id="nextPhoto"></button>
       </div>
     </div>
   </div>
@@ -81,7 +81,14 @@
     </div>
   </div>
 </section>
-
+  
+<!-- Photo Overlay -->
+<div id="fullscreenOverlay" class="fullscreen hidden">
+  <button class="close-btn" id="closeFullscreen">&times;</button>
+  <button class="arrow left" id="prevFull"></button>
+  <img id="fullscreenImg" src="" alt="Fullscreen Photo">
+  <button class="arrow right" id="nextFull"></button>
+</div>
 <!-- Slider Overlay -->
 <div id="sliderOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;z-index:100;">
   <button class="overlay-close" id="closeSliderOverlay">×</button>
@@ -320,6 +327,117 @@ function restoreYouTubePlayer() {
 
   wrapper.appendChild(newIframe);
 }
+
+// ---------------------
+// Photo Viewer Variables
+// ---------------------
+const photoImages = [
+  "images/foto (1).jpg",
+  "images/foto (2).jpg",
+  "images/foto (3).jpg",
+  "images/foto (4).jpg"
+];
+
+let photoCurrent = 0;
+let galleryImg = null;
+let fullscreen = null;
+let fullscreenImg = null;
+let nextBtn = null;
+let prevBtn = null;
+let closeBtn = null;
+
+// ---------------------
+// Initialize PhotoViewer
+// ---------------------
+function initializePhotoViewer() {
+  galleryImg = document.getElementById("galleryImage");
+  fullscreen = document.getElementById("fullscreenOverlay");
+  fullscreenImg = document.getElementById("fullscreenImg");
+  nextBtn = document.getElementById("nextPhoto");
+  prevBtn = document.getElementById("prevPhoto");
+  closeBtn = document.getElementById("closeFullscreen");
+
+  if (!galleryImg || !fullscreen || !fullscreenImg || !nextBtn || !prevBtn || !closeBtn) return;
+
+  // Initialize first image
+  showPhoto(0);
+
+  // Small gallery controls
+  nextBtn.onclick = () => showPhoto(photoCurrent + 1);
+  prevBtn.onclick = () => showPhoto(photoCurrent - 1);
+  galleryImg.onclick = () => showFullscreen(photoCurrent);
+
+  // Fullscreen controls
+  document.getElementById("nextFull").onclick = () => {
+    photoCurrent = (photoCurrent + 1) % photoImages.length;
+    fullscreenImg.src = photoImages[photoCurrent];
+  };
+  document.getElementById("prevFull").onclick = () => {
+    photoCurrent = (photoCurrent - 1 + photoImages.length) % photoImages.length;
+    fullscreenImg.src = photoImages[photoCurrent];
+  };
+  closeBtn.onclick = closeFullscreen;
+
+  // Keep fullscreen image centered on resize
+  window.addEventListener("resize", onResize);
+}
+
+// ---------------------
+// Show a specific photo
+// ---------------------
+function showPhoto(index) {
+  photoCurrent = (index + photoImages.length) % photoImages.length;
+  galleryImg.src = photoImages[photoCurrent];
+}
+
+// ---------------------
+// Show fullscreen
+// ---------------------
+function showFullscreen(index) {
+  fullscreenImg.src = photoImages[index];
+  fullscreen.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+// ---------------------
+// Close fullscreen
+// ---------------------
+function closeFullscreen() {
+  fullscreen.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+// ---------------------
+// Close and cleanup viewer
+// ---------------------
+function closePhotoViewer() {
+  if (nextBtn) nextBtn.onclick = null;
+  if (prevBtn) prevBtn.onclick = null;
+  if (closeBtn) closeBtn.onclick = null;
+  if (galleryImg) galleryImg.onclick = null;
+  window.removeEventListener("resize", onResize);
+
+  galleryImg = null;
+  fullscreen = null;
+  fullscreenImg = null;
+  nextBtn = null;
+  prevBtn = null;
+  closeBtn = null;
+}
+
+// ---------------------
+// Resize handler
+// ---------------------
+function onResize() {
+  if (!fullscreen || fullscreen.classList.contains("hidden")) return;
+  fullscreenImg.style.maxWidth = "90vw";
+  fullscreenImg.style.maxHeight = "90vh";
+}
+
+// ---------------------
+// Start viewer
+// ---------------------
+initializePhotoViewer();
   
 // =======================
 // Slider: Weicher Destroy / Reinitialisierung
@@ -355,11 +473,6 @@ initCanvasSequence(); // gpt schaue hier, warum ist die funktion hier ausgeführ
 // =======================
 document.getElementById("hamburger").addEventListener("click", ()=>document.getElementById("navLinks").classList.toggle("show"));
 
-const photos = ["images/photo1.jpg","images/photo2.jpg","images/photo3.jpg"];
-let photoIndex = 0;
-const galleryImage = document.getElementById("galleryImage");
-document.getElementById("nextPhoto").addEventListener("click", ()=>{photoIndex = (photoIndex + 1) % photos.length;galleryImage.src = photos[photoIndex];});
-document.getElementById("prevPhoto").addEventListener("click", ()=>{photoIndex = (photoIndex - 1 + photos.length) % photos.length;galleryImage.src = photos[photoIndex];});
 
 // Slider overlay existing logic - unchanged
 const sliderOverlay = document.getElementById('sliderOverlay');
@@ -960,4 +1073,3 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
 </script>
 </body>
 </html>
-
