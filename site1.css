@@ -1,3 +1,4 @@
+/* ---------- Portfolio Link ---------- */
 #portfolio {
   color: #d33a57;
   text-decoration: none;
@@ -6,46 +7,53 @@
   outline: none;
 }
 
-/* Section card */
+/* ---------- Section Layout ---------- */
 section {
   position: relative;
-  height: 100vh;                 /* full viewport height */
-  margin: 0;                     /* no extra margin between sections */
-  padding: 2rem 1rem;            /* inner spacing for content */
-  display: flex;                 /* center content vertically */
-  align-items: center;           /* vertical center */
-  justify-content: center;       /* horizontal center */
+  min-height: 100vh;             /* full screen height */
+  margin: 0;
+  padding: 2rem 1rem;
+  display: flex;
+  align-items: center;           /* vertical centering */
+  justify-content: center;       /* horizontal centering */
   width: 100%;
   background: rgba(0, 0, 0, 0);
-  border-radius: 0;              /* optional: remove if you want edge-to-edge */
-  box-shadow: none;              /* optional: remove if not needed */
+  border-radius: 0;
+  box-shadow: none;
+  scroll-snap-align: center;
 }
 
 section .mask {
   position: relative;
-  overflow: visible; /* allow full height */
-  max-height: none;  /* remove height restriction */
+  overflow: visible;
+  max-height: none;
   margin: 0 auto;
 }
 
-/* Actual text/content */
+/* ---------- Section Content Box ---------- */
 section .content {
-  max-width: 900px;
-  width: 90vh;
+  width: 80vw;                   /* always 80% of viewport width */
+  max-width: 900px;              /* never exceed 900px */
+  min-width: 0;
   margin: 0 auto;
-  padding: 1rem 1rem;
-  width: 90%;
+  padding: 2rem;
   color: #ffffff;
   background-color: rgba(0, 0, 0, 0.54);
   border-radius: 10px;
   text-align: center;
-  box-shadow:0 0 25px yellow;
+  /*box-shadow: 0 0 25px yellow;*/
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
 }
 
+/* ---------- Photo Gallery ---------- */
 .photo-gallery {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9; /* fixed display area */
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: 10px;
 }
@@ -58,10 +66,9 @@ section .content {
   cursor: pointer;
   transition: transform 0.3s ease;
 }
-.photo-gallery img:hover {
-  transform: scale(1.05);
-}
-/* Arrows for small gallery */
+.photo-gallery img:hover { transform: scale(1.05); }
+
+/* Gallery Arrows */
 .photo-gallery button {
   position: absolute;
   top: 50%;
@@ -76,16 +83,13 @@ section .content {
 .photo-gallery button::before {
   content: "";
   display: block;
-  width: 0; height: 0;
+  width: 0;
+  height: 0;
   margin: auto;
   border-style: solid;
 }
-.photo-gallery button:hover{
-  scale: 1.05;
-}
-.photo-gallery button:active{
-  scale: 0.95;
-}
+.photo-gallery button:hover { scale: 1.05; }
+.photo-gallery button:active { scale: 0.95; }
 
 #prevPhoto::before {
   border-width: 20px 26px 20px 0;
@@ -121,7 +125,7 @@ section .content {
   border-radius: 10px;
 }
 
-/* Close button */
+/* Close Button */
 .close-btn {
   position: absolute;
   top: 20px;
@@ -135,7 +139,7 @@ section .content {
   line-height: 1;
 }
 
-/* Arrows inside fullscreen */
+/* Fullscreen Arrows */
 .fullscreen .arrow {
   position: absolute;
   top: 50%;
@@ -146,19 +150,17 @@ section .content {
   height: 64px;
   cursor: pointer;
 }
-.fullscreen .arrow:hover {
-  scale: 1.05;
-}
-.fullscreen .arrow:active {
-  scale: 0.95;
-}
+.fullscreen .arrow:hover { scale: 1.05; }
+.fullscreen .arrow:active { scale: 0.95; }
 
 .fullscreen .arrow.left { left: 20px; }
 .fullscreen .arrow.right { right: 20px; }
+
 .fullscreen .arrow::before {
   content: "";
   display: block;
-  width: 0; height: 0;
+  width: 0;
+  height: 0;
   margin: auto;
   border-style: solid;
 }
@@ -168,12 +170,13 @@ section .content {
 }
 .fullscreen .arrow.right::before {
   border-width: 20px 0 20px 26px;
-  border-color: transparent transparent transparent rgb(255, 255, 255);
+  border-color: transparent transparent transparent white;
 }
 
+/* ---------- Video Wrapper ---------- */
 .video-wrapper {
   width: 100%;
-  height: 300px;
+  aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
 }
@@ -183,19 +186,7 @@ section .content {
   border: none;
 }
 
-/* Responsive */
-@media (max-width: 480px) {
-  section {
-    padding: 1rem 1rem;
-    width: 95%;
-    border-radius: 16px;
-  }
-  section .content {
-    padding: 1.5rem 1rem;
-  }
-}
-
-/* --- Vergleichsslider Styles --- */
+/* ---------- Vergleichsslider ---------- */
 .container {
   position: relative;
   width: 100%;
@@ -207,7 +198,9 @@ section .content {
 }
 .pane {
   position: absolute;
-  top: 0; bottom: 0; width: 100%;
+  top: 0;
+  bottom: 0;
+  width: 100%;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
@@ -221,7 +214,8 @@ section .content {
 #right { z-index: 2; clip-path: inset(0 0 0 50%); }
 #slider {
   position: absolute;
-  top: 0; bottom: 0;
+  top: 0;
+  bottom: 0;
   left: 50%;
   width: 10px;
   margin-left: -5px;
@@ -233,23 +227,24 @@ section .content {
   outline: none;
   -webkit-tap-highlight-color: transparent;
 }
-#slider:hover {
-  background: rgba(255, 177, 0, 0.8);
-}
+#slider:hover { background: rgba(255, 177, 0, 0.8); }
 
-/* Overlay close button */
+/* Overlay Close Button */
 .overlay-close {
   position: absolute;
-  top: 20px; right: 20px;
-  width: 40px; height: 40px;
-  border: none; border-radius: 50%;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
   background: rgba(255,255,255,0.7);
   font-size: 24px;
   cursor: pointer;
   z-index: 10;
 }
 
-/* Panorama overlay internal container should fill the panoOverlay area */
+/* Panorama Overlay */
 #panoViewFullInner {
   width: 100%;
   height: 100%;
@@ -258,7 +253,62 @@ section .content {
 }
 #panoFadeOverlay {
   position: absolute;
-  top:0; left:0; width:100%; height:100%;
-  background:black; opacity:0; pointer-events:none; z-index:20;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
   transition: opacity 0.3s ease;
+}
+
+/* ---------- Responsive Adjustments ---------- */
+
+/* Medium screens (under 700px) */
+@media (max-width: 700px) {
+  section {
+    min-height: 100vh;
+    height: auto;
+    align-items: center;         /* keep vertical centering */
+    justify-content: center;
+    padding: 5rem 1rem 2rem;     /* top padding for navbar */
+  }
+
+  section .content {
+    width: 80vw;                 /* always 80% of viewport width */
+    max-width: none;
+    min-width: 0;
+    padding: 1.5rem 1rem;
+    box-shadow: 0 0 15px yellow;
+  }
+
+  .photo-gallery,
+  .video-wrapper,
+  .container {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto;
+  }
+
+  .video-wrapper iframe {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    height: auto;
+  }
+}
+
+/* Small screens (under 480px) */
+@media (max-width: 480px) {
+  section {
+    padding: 5rem 1rem 1rem;
+  }
+
+  section .content {
+    width: 85vw;                 /* slightly smaller to fit narrow phones */
+    max-width: none;
+    padding: 1.25rem 1rem;
+    font-size: 0.95rem;
+  }
 }
