@@ -9,31 +9,37 @@
 /* Section card */
 section {
   position: relative;
-  margin: 50% auto;
-  padding: 1rem 1rem;
-  width: 90%;
-  max-width: 900px;
-  background: rgba(0, 0, 0, 0.84);
-  border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-  z-index: 1;
+  height: 100vh;                 /* full viewport height */
+  margin: 0;                     /* no extra margin between sections */
+  padding: 2rem 1rem;            /* inner spacing for content */
+  display: flex;                 /* center content vertically */
+  align-items: center;           /* vertical center */
+  justify-content: center;       /* horizontal center */
+  width: 100%;
+  background: rgba(0, 0, 0, 0);
+  border-radius: 0;              /* optional: remove if you want edge-to-edge */
+  box-shadow: none;              /* optional: remove if not needed */
 }
 
-/* Mask container */
 section .mask {
   position: relative;
-  overflow: hidden;
-  max-height: calc(100vh - 100px);
+  overflow: visible; /* allow full height */
+  max-height: none;  /* remove height restriction */
   margin: 0 auto;
 }
 
 /* Actual text/content */
 section .content {
   max-width: 900px;
+  width: 90vh;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 1rem 1rem;
+  width: 90%;
   color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.54);
+  border-radius: 10px;
   text-align: center;
+  box-shadow:0 0 25px yellow;
 }
 
 .photo-gallery {
@@ -53,9 +59,8 @@ section .content {
   transition: transform 0.3s ease;
 }
 .photo-gallery img:hover {
-  transform: scale(1.02);
+  transform: scale(1.05);
 }
-
 /* Arrows for small gallery */
 .photo-gallery button {
   position: absolute;
@@ -75,6 +80,13 @@ section .content {
   margin: auto;
   border-style: solid;
 }
+.photo-gallery button:hover{
+  scale: 1.05;
+}
+.photo-gallery button:active{
+  scale: 0.95;
+}
+
 #prevPhoto::before {
   border-width: 20px 26px 20px 0;
   border-color: transparent white transparent transparent;
@@ -134,6 +146,13 @@ section .content {
   height: 64px;
   cursor: pointer;
 }
+.fullscreen .arrow:hover {
+  scale: 1.05;
+}
+.fullscreen .arrow:active {
+  scale: 0.95;
+}
+
 .fullscreen .arrow.left { left: 20px; }
 .fullscreen .arrow.right { right: 20px; }
 .fullscreen .arrow::before {
@@ -149,7 +168,7 @@ section .content {
 }
 .fullscreen .arrow.right::before {
   border-width: 20px 0 20px 26px;
-  border-color: transparent transparent transparent white;
+  border-color: transparent transparent transparent rgb(255, 255, 255);
 }
 
 .video-wrapper {
