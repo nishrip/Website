@@ -1,201 +1,196 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Landing Page mit mobilem Canvas-Puffer</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Landing Page with Static Canvas</title>
+<link rel="stylesheet" href="global.css">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* Reset & Grundlayout */
-*,*::before,*::after{box-sizing:border-box;}
-html,body{margin:0;padding:0;background:#000;font-family:Segoe UI,sans-serif;overflow-x:hidden;}
-
-/* Canvas */
-canvas#sequence{
-  position:fixed;
-  top:0;left:0;
-  width:100vw;
-  z-index:0;
-  background:#000;
-  object-fit:cover;
-}
-
-/* Navigation */
-nav{
-  position:fixed;
-  top:0;left:0;width:100%;
-  background:rgb(49,49,49);
-  box-shadow:0 4px 8px rgba(0,0,0,.2),0 6px 20px rgba(0,0,0,.19);
-  padding:1rem;
-  display:flex;justify-content:space-between;align-items:center;
-  z-index:10;
-}
-nav .logo a{color:#fff;text-decoration:none;font-weight:bold;font-size:1.5rem;text-shadow:0 0 3px rgba(8,0,0,.47);}
-nav .nav-links{display:flex;gap:2rem;flex-wrap:wrap;}
-nav .nav-links a{color:#fff;text-decoration:none;font-weight:bold;user-select:none;text-shadow:0 0 3px rgba(8,0,0,.47);transition:transform .2s,color .2s;}
-nav .nav-links a:hover{color:#d33a57;transform:scale(1.1);}
-nav .nav-links a:active{transform:scale(1);}
-nav .hamburger{display:none;flex-direction:column;cursor:pointer;gap:5px;z-index:11;}
-nav .hamburger div{width:25px;height:3px;background:#fff;border-radius:2px;transition:background .2s,transform .2s;}
-nav .hamburger:hover div{background:#d33a57;}
-nav .hamburger:active div{background:#a22a45;}
-
-/* Mobile Menü */
-@media(max-width:700px){
-  nav .hamburger{display:flex;}
-  nav .nav-links{
-    position:absolute;top:100%;left:0;width:100%;
-    flex-direction:column;background:rgb(106,106,106);
-    padding:0;gap:0;opacity:0;pointer-events:none;
-    transform:translateY(-10px);
-    transition:opacity .36s cubic-bezier(.22,.8,.2,1),
-               transform .36s cubic-bezier(.22,.8,.2,1);
-  }
-  nav .nav-links.show{opacity:1;transform:translateY(0);pointer-events:auto;}
-  nav .nav-links a{display:block;width:100%;text-align:center;padding:.75rem 0;}
-  nav .nav-links a:hover{background:#d33a57;color:#fff;}
-  nav .nav-links a:active{background:#a22a45;}
-}
-
 /* Sections */
-section{
-  position:relative;
-  margin:50% auto;
-  padding:6rem 1rem;
-  width:90%;max-width:900px;
-  background:rgba(0,0,0,.84);
-  border-radius:20px;
-  box-shadow:0 8px 25px rgba(0,0,0,.4);
-  z-index:1;
+section {
+  position: relative;
+  margin: 50% auto;
+  padding: 6rem 1rem;
+  width: 90%;
+  max-width: 900px;
+  background: rgba(0, 0, 0, 0.84);
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+  z-index: 1;
 }
-section .content{max-width:900px;margin:0 auto;padding:2rem 3rem;color:#fff;text-align:center;}
-@media(max-width:480px){
-  section{padding:4rem 1rem;width:95%;border-radius:16px;}
-  section .content{padding:1.5rem 1rem;}
+
+/* Mask container */
+section .mask {
+  position: relative;
+  overflow: hidden;
+  max-height: calc(100vh - 100px);
+  margin: 0 auto;
+}
+
+/* Content */
+section .content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 3rem;
+  color: #ffffff;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  section {
+    padding: 4rem 1rem;
+    width: 95%;
+    border-radius: 16px;
+  }
+  section .content {
+    padding: 1.5rem 1rem;
+  }
+}
+
+/* Canvas fixed full-screen */
+canvas#sequence {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  background: black;
 }
 </style>
 </head>
-
 <body>
+
+<!-- Navigation -->
 <nav>
-  <div class="logo"><a href="#">PREISE</a></div>
+  <div class="logo"><a href="index.html">PREISE</a></div>
   <div class="nav-links" id="navLinks">
     <a href="portfolio.html">PORTFOLIO</a>
     <a href="#">PREISE</a>
     <a href="#">CLIENTS</a>
     <a href="#">KONTAKT</a>
   </div>
-  <div class="hamburger" id="hamburger"><div></div><div></div><div></div></div>
+  <div class="hamburger" id="hamburger">
+    <div></div><div></div><div></div>
+  </div>
 </nav>
 
+<!-- Canvas -->
 <canvas id="sequence"></canvas>
 
-<section><div class="content"><h2>About</h2><p>Lorem ipsum...</p></div></section>
-<section><div class="content"><h2>Services</h2><p>Text ...</p></div></section>
-<section><div class="content"><h2>Contact</h2><p>Mail ...</p></div></section>
+<!-- Sections -->
+<section id="section1">
+  <div class="mask">
+    <div class="content">
+      <h2>About Me</h2>
+      <p>Lorem ipsum dolor sit amet...</p>
+    </div>
+  </div>
+</section>
+
+<section id="section2">
+  <div class="mask">
+    <div class="content">
+      <h2>Skills & Services</h2>
+      <p>More text for testing scroll behavior.</p>
+    </div>
+  </div>
+</section>
+
+<section id="section3">
+  <div class="mask">
+    <div class="content">
+      <h2>Contact</h2>
+      <p>Placeholder for contact details.</p>
+    </div>
+  </div>
+</section>
 
 <script>
-const canvas=document.getElementById("sequence");
-const ctx=canvas.getContext("2d");
-const frameCount=120;
-const images=[];
-let currentFrame=0,targetFrame=0;
+const canvas = document.getElementById("sequence");
+const ctx = canvas.getContext("2d");
+const frameCount = 120;
+const images = [];
+let currentFrame = 0;
+let targetFrame = 0;
 
-// Gerät erkennen
-const isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+// --- Fixe Bildschirmgröße --- //
+let canvasWidth = window.screen.width;
+let canvasHeight = window.screen.height;
 
-function updateCanvasSize(){
-  if(isMobile){
-    const viewportHeight=window.innerHeight;
-    const urlBarHeight=window.screen.height-viewportHeight;
-    const buffer=50;
-    canvas.width=window.innerWidth;
-    canvas.height=viewportHeight+urlBarHeight+buffer;
-    canvas.style.top="0px"; // bleibt an Navbar gekoppelt
-  }else{
-    canvas.width=window.innerWidth;
-    canvas.height=window.innerHeight;
-  }
+// Canvas einmalig aufsetzen (keine spätere Anpassung)
+canvas.width = canvasWidth;
+canvas.height = canvasHeight;
+
+// Frame-Loader
+const getFramePath = i => `frames2/${(i + 242).toString().padStart(4, '0')}.jpg`;
+
+function drawImageCover(img) {
+  const scale = Math.max(canvasWidth / img.width, canvasHeight / img.height);
+  const x = (canvasWidth / 2) - (img.width / 2) * scale;
+  const y = (canvasHeight / 2) - (img.height / 2) * scale;
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
 }
 
-// Pfad zu den Frames
-const getFramePath=i=>`frames3/${i.toString().padStart(4,"0")}.jpg`;
-
-function drawImageCover(img){
-  const scale=Math.max(canvas.width/img.width,canvas.height/img.height);
-  const x=(canvas.width/2)-(img.width/2)*scale;
-  const y=0;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.drawImage(img,x,y,img.width*scale,img.height*scale);
-}
-
-function loadFrame(i){
-  if(i<0||i>=frameCount)return;
-  if(!images[i]){
-    const img=new Image();
-    img.src=getFramePath(i);
-    img.onload=()=>{if(i===currentFrame)drawImageCover(img);};
-    images[i]=img;
+function loadFrame(i) {
+  if (i < 0 || i >= frameCount) return;
+  if (!images[i]) {
+    const img = new Image();
+    img.src = getFramePath(i);
+    img.onload = () => { if (i === currentFrame) drawImageCover(img); };
+    images[i] = img;
   }
   return images[i];
 }
 
-function preloadNearbyFrames(center,range=20){
-  for(let offset=-range;offset<=range;offset++)loadFrame(center+offset);
+function preloadNearbyFrames(center, range = 20) {
+  for (let offset = -range; offset <= range; offset++) {
+    loadFrame(center + offset);
+  }
 }
 
-// initial laden
 loadFrame(0);
-preloadNearbyFrames(0,20);
+preloadNearbyFrames(0, 20);
 
-// beim Laden direkt erstes Bild zeichnen
-window.addEventListener("load",()=>{
-  const img=loadFrame(0);
-  if(img&&img.complete)drawImageCover(img);
-  else img.onload=()=>drawImageCover(img);
+// --- Scrollanimation --- //
+window.addEventListener("scroll", () => {
+  const scrollTop = window.scrollY;
+  const scrollHeight = document.body.scrollHeight - window.innerHeight;
+  const scrollFraction = scrollTop / scrollHeight;
+  targetFrame = Math.min(frameCount - 1, Math.floor(scrollFraction * frameCount));
 });
 
-// Scroll -> Frame
-window.addEventListener("scroll",()=>{
-  const scrollTop=window.scrollY;
-  const scrollHeight=document.body.scrollHeight-window.innerHeight;
-  const scrollFraction=scrollTop/scrollHeight;
-  targetFrame=Math.min(frameCount-1,Math.floor(scrollFraction*frameCount));
-});
-
-// Frameanimation
-function animateFrames(){
-  if(currentFrame!==targetFrame){
-    const dir=targetFrame>currentFrame?1:-1;
-    currentFrame+=dir;
-    const img=loadFrame(currentFrame);
-    if(img?.complete)drawImageCover(img);
-    preloadNearbyFrames(currentFrame,20);
+function animateFrames() {
+  if (currentFrame !== targetFrame) {
+    const dir = targetFrame > currentFrame ? 1 : -1;
+    currentFrame += dir;
+    const img = loadFrame(currentFrame);
+    if (img?.complete) drawImageCover(img);
+    preloadNearbyFrames(currentFrame, 20);
   }
   requestAnimationFrame(animateFrames);
 }
 animateFrames();
 
-// Resize / OrientationChange
-window.addEventListener("resize",()=>{
-  updateCanvasSize();
-  const img=images[currentFrame];
-  if(img?.complete)drawImageCover(img);
-});
-window.addEventListener("orientationchange",()=>{
-  updateCanvasSize();
-  const img=images[currentFrame];
-  if(img?.complete)drawImageCover(img);
+// --- Nur bei echter Drehung neu aufsetzen --- //
+window.addEventListener("orientationchange", () => {
+  setTimeout(() => {
+    canvasWidth = window.screen.width;
+    canvasHeight = window.screen.height;
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    if (images[currentFrame]?.complete) drawImageCover(images[currentFrame]);
+  }, 500);
 });
 
-// Hamburger-Menü
-const hamburger=document.getElementById("hamburger");
-const navLinks=document.getElementById("navLinks");
-hamburger.addEventListener("click",()=>navLinks.classList.toggle("show"));
-
-// initiale Größe
-updateCanvasSize();
+// Hamburger menu
+const hamburger = document.getElementById("hamburger");
+const navLinks = document.getElementById("navLinks");
+hamburger.addEventListener("click", () => navLinks.classList.toggle("show"));
 </script>
+
 </body>
 </html>
-

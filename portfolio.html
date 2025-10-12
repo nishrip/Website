@@ -6,6 +6,8 @@
 <title>Landing Page with Sections</title>
 <link rel="stylesheet" href="global.css">
 <link rel="stylesheet" href="site1.css">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
 <!-- Panolens / Three.js / Tween (für Panorama) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r110/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/panolens@0.12.0/build/panolens.min.js"></script>
@@ -52,7 +54,9 @@
   <div class="mask">
     <div class="content">
       <h2>Vergleichsslider</h2>
+      <div class="photo-gallery" style="position: relative;">
       <img id="sliderPreview" src="Vergleich.jpg" style="width:100%;border-radius:10px;cursor:pointer;">
+      </div>
     </div>
   </div>
 </section>
@@ -61,7 +65,9 @@
   <div class="mask">
     <div class="content">
       <h2>360° Ansicht</h2>
+      <div class="photo-gallery" style="position: relative;">
       <img id="panoPreview" src="pano/pano1.jpg" style="width:100%;border-radius:10px;cursor:pointer;">
+      </div>
     </div>
   </div>
 </section>
@@ -86,7 +92,7 @@
 <div id="fullscreenOverlay" class="fullscreen hidden">
   <button class="close-btn" id="closeFullscreen">&times;</button>
   <button class="arrow left" id="prevFull"></button>
-  <img id="fullscreenImg" src="" alt="Fullscreen Photo">
+  <img id="fullscreenImg" src="images/foto (1).jpg" alt="Fullscreen Photo">
   <button class="arrow right" id="nextFull"></button>
 </div>
 <!-- Slider Overlay -->
@@ -371,10 +377,12 @@ function initializePhotoViewer() {
   document.getElementById("nextFull").onclick = () => {
     photoCurrent = (photoCurrent + 1) % photoImages.length;
     fullscreenImg.src = photoImages[photoCurrent];
+    showPhoto(photoCurrent);
   };
   document.getElementById("prevFull").onclick = () => {
     photoCurrent = (photoCurrent - 1 + photoImages.length) % photoImages.length;
     fullscreenImg.src = photoImages[photoCurrent];
+    showPhoto(photoCurrent);
   };
   closeBtn.onclick = closeFullscreen;
 
