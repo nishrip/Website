@@ -1,11 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 /* Reset & Grundlayout */
 *,*::before,*::after{box-sizing:border-box;}
 html,body{
   margin:0;
   padding:0;
   background:#000;
-  font-family: 'Audiowide', cursive;
+  font-family: 'Segoe UI', sans-serif;
   overflow-x:hidden;}
 
 /*canvas#sequence{
