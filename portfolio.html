@@ -6,6 +6,7 @@
 <title>Landing Page with Sections</title>
 <link rel="stylesheet" href="global.css">
 <link rel="stylesheet" href="site1.css">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
 <!-- Panolens / Three.js / Tween (für Panorama) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r110/three.min.js"></script>
@@ -13,7 +14,25 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/Tween.min.js"></script>
 
 <style>
-  
+  #panoLoader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0, 0, 0);
+  color: #fff;
+  font-size: 1.5rem;
+  z-index: 9999;
+}
+  #panoLoader {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+#panoLoader.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
@@ -22,7 +41,8 @@
 <nav>
   <div class="logo"><a href="index.html">LOGO</a></div>
   <div class="nav-links" id="navLinks">
-    <a id="portfolio" href="#">PORTFOLIO</a>
+    <a id="portfolio" href="portfolio.html">PORTFOLIO</a>
+    <a href="#">PREISE</a>
     <a href="#">CLIENTS</a>
     <a href="#">KONTAKT</a>
   </div>
@@ -38,7 +58,7 @@
 <section id="section1">
   <div class="mask">
     <div class="content">
-      <h2>Einzelfotos</h2>
+      <!--<h2>Einzelfotos</h2>-->
       <div class="photo-gallery" style="position: relative;">
         <button id="prevPhoto"></button>
         <img id="galleryImage" src="images/foto (1).jpg" alt="Gallery Image">
@@ -51,7 +71,7 @@
 <section id="section2">
   <div class="mask">
     <div class="content">
-      <h2>Vergleichsslider</h2>
+      <!--<h2>Vergleichsslider</h2>-->
       <div class="photo-gallery" style="position: relative;">
       <img id="sliderPreview" src="Vergleich.jpg" style="width:100%;border-radius:10px;cursor:pointer;">
       </div>
@@ -62,7 +82,7 @@
 <section id="section3">
   <div class="mask">
     <div class="content">
-      <h2>360° Ansicht</h2>
+      <!--<h2>360° Ansicht</h2>-->
       <div class="photo-gallery" style="position: relative;">
       <img id="panoPreview" src="pano/pano1.jpg" style="width:100%;border-radius:10px;cursor:pointer;">
       </div>
@@ -73,7 +93,7 @@
 <section id="section4">
   <div class="mask">
     <div class="content">
-      <h2>Video</h2>
+      <!--<h2>Video</h2>-->
       <div class="video-wrapper">
         <iframe loading="lazy" title="YouTube video player"
                 src="https://www.youtube.com/embed/bLCyMWfFf4M"
@@ -84,11 +104,17 @@
       </div>
     </div>
   </div>
+  <div class="footer">
+    <div class="footerContent" id="footerContent">
+    <a href="#">Datenschutz</a>
+    <a href="#">Impressum</a>
+    </div>
+  </div>
 </section>
   
 <!-- Photo Overlay -->
 <div id="fullscreenOverlay" class="fullscreen hidden">
-  <button class="close-btn" id="closeFullscreen">&times;</button>
+  <button class="overlay-close" id="closeFullscreen">×</button>
   <button class="arrow left" id="prevFull"></button>
   <img id="fullscreenImg" src="images/foto (1).jpg" alt="Fullscreen Photo">
   <button class="arrow right" id="nextFull"></button>
@@ -104,6 +130,9 @@
 </div>
 
 <!-- Panorama Overlay (full-screen) -->
+<div id="panoLoader" style="display: none;">
+  <p>360° Ansicht.<br> Die blauen Ringe dienen zum Positionswechsel</p>
+</div>
 <div id="panoOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;z-index:150;">
   <button class="overlay-close" id="closePanoOverlay">×</button>
   <div id="panoViewFull" style="width:100%;height:100%;margin:0;position:relative;top:0;left:0;background:#111;border-radius:0;">
@@ -261,6 +290,16 @@ function initCanvasSequence(){
 
   // start animation loop
   if(!animationId) animateFrames();
+}
+  
+function showPanoLoader() {
+  const loader = document.getElementById('panoLoader');
+  if (loader) loader.style.display = 'flex';
+}
+
+function hidePanoLoader() {
+  const loader = document.getElementById('panoLoader');
+  if (loader) loader.style.display = 'none';
 }
 
 // DESTROY canvas resources: cancels animation, removes listeners, clears image src references
@@ -757,7 +796,12 @@ function createAndShowPanoramaViewer() {
       panoContainer.dispatchEvent(event);
     }
     
-    try { panoViewer.setPanorama(panoramas[7]); } catch (e) { /* ignore */ }
+    try { 
+      panoViewer.setPanorama(panoramas[7]); 
+      panoramas[7].addEventListener('load', () => {
+        hidePanoLoader();
+      });
+    } catch (e) {}
     try { panoViewer.tweenControlCenter(new THREE.Vector3(10, 1, 1), 0); } catch(e){}
 
     // mark initialized
@@ -949,6 +993,7 @@ function switchPanorama(hotspot, targetPanorama, correspondingTargetHotspot) {
 document.getElementById('panoPreview').addEventListener('click', async ()=>{
   // 1) Freigeben aller sonstigen Ressourcen vor Panolens
   try {
+    showPanoLoader();
     destroyCanvasSequence();
     resetYouTubePlayer();
     softDestroySliderOverlay();
@@ -1078,6 +1123,4 @@ document.getElementById('closePanoOverlay').addEventListener('click', ()=>{
 });
 </script>
 </body>
-
 </html>
-
