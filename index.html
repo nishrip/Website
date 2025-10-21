@@ -6,58 +6,64 @@
 <title>Landing Page with Static Canvas</title>
 <link rel="stylesheet" href="global.css">
 <style>
-/* Sections */
+/* === Grundlayout für Sections === */
 section {
   position: relative;
-  margin: 50% auto;
-  padding: 6rem 1rem;
-  width: 90%;
-  max-width: 900px;
-  background: rgba(0, 0, 0, 0.84);
-  border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-  z-index: 1;
+  min-height: 100vh;               /* statt fixem height, damit mehr Inhalt reinpasst */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  scroll-snap-align: start;        /* sanfteres Snap-Verhalten */
+  scroll-snap-stop: always;
+  padding: 5vh 0;                  /* etwas vertikaler Abstand für kleinere Bildschirme */
+  box-sizing: border-box;
 }
 
-/* Mask container */
+/* === Overlay-Box (Mask) === */
 section .mask {
   position: relative;
-  overflow: hidden;
-  max-height: calc(100vh - 100px);
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;        /* ganze Breite */
+  background: #ffffff;    /* komplett weiß */
+  color: #111111;         /* dunkle Schrift */
+  box-shadow: none;       /* optional, sauberer Flat-Look */
+  border-radius: 0;       /* keine Abrundung */
+  padding: 4rem 2rem;     /* großzügige Innenabstände */
+  box-sizing: border-box;
+  box-shadow: 5px 10px 100px #000000;
 }
 
-/* Content */
+/* === Inhalt in der Maske === */
 section .content {
-  max-width: 900px;
+  padding: 2.5rem 3rem;
+  color: rgb(59, 59, 59);
+  text-align: left;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 2rem 3rem;
-  color: #ffffff;
-  text-align: center;
 }
 
-/* Responsive */
+/* === Responsives Verhalten === */
+@media (max-width: 768px) {
+  section .mask {
+    width: 100%;
+  }
+  section .content {
+    padding: 1.8rem 1.2rem;
+  }
+}
+
 @media (max-width: 480px) {
   section {
-    padding: 4rem 1rem;
-    width: 95%;
-    border-radius: 16px;
+    padding: 8vh 0;
+  }
+  section .mask {
+    width: 100%;
   }
   section .content {
     padding: 1.5rem 1rem;
   }
 }
 
-/* Canvas fixed full-screen */
-canvas#sequence {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 0;
-  background: black;
-}
 </style>
 </head>
 <body>
@@ -67,6 +73,7 @@ canvas#sequence {
   <div class="logo"><a href="index.html">LOGO</a></div>
   <div class="nav-links" id="navLinks">
     <a href="portfolio.html">PORTFOLIO</a>
+    <a href="#">PREISE</a>
     <a href="#">CLIENTS</a>
     <a href="#">KONTAKT</a>
   </div>
@@ -83,7 +90,16 @@ canvas#sequence {
   <div class="mask">
     <div class="content">
       <h2>About Me</h2>
-      <p>Lorem ipsum dolor sit amet...</p>
+      <p>
+        Wir gestalten Räume, Produkte und Konzepte in bewegten und unbewegten Bildern.  
+        Dabei liegt unser Fokus auf der Balance zwischen technischer Präzision und ästhetischem Ausdruck.  
+        Jede Visualisierung ist eine visuelle Komposition – ob als Einzelbild, interaktiver Raum oder filmisches Erlebnis.
+      </p>
+      <p style="margin-top:1.5rem;">
+        Unser Ziel: nicht nur realistische Bilder zu schaffen, 
+        sondern emotionale Welten, die wirken wie Szenen eines Films – 
+        präzise komponiert und künstlerisch inszeniert.
+      </p>
     </div>
   </div>
 </section>
@@ -91,8 +107,23 @@ canvas#sequence {
 <section id="section2">
   <div class="mask">
     <div class="content">
-      <h2>Skills & Services</h2>
-      <p>More text for testing scroll behavior.</p>
+      <h2>Leistungen</h2>
+      <ul style="text-align:left; display:inline-block; margin-top:1rem;">
+        <li><strong>Architekturvisualisierung:</strong><br>
+            <i>Aus Ihren Bauplänen entstehen ausdrucksstarke Renderings, die Räume atmosphärisch und stimmungsvoll erfahrbar machen.<br></i></li>
+        <li><strong>Produktvisualisierung:</strong><br>
+            <i>Detailreiche Darstellungen, die Materialien, Form und Funktion in den Mittelpunkt stellen.<br></i></li>
+        <li><strong>3D-Animation & Architekturfilm:</strong><br>
+            <i>Bewegte Szenen mit filmischer Dramaturgie – von der Kamerafahrt bis zur Inszenierung im Schnitt.<br></i></li>
+        <li><strong>Storyboard & Filmkonzept:</strong><br>
+            <i>In Zusammenarbeit mit einem erfahrenen Filmemacher entwickeln wir visuelle Erzählstrukturen, 
+            abgestimmt auf Atmosphäre, Tempo und Stil des Projekts.<br></i></li>
+        <li><strong>Editing, Sound & Postproduktion:</strong><br>
+            <i>Professioneller Filmschnitt, Farbkorrektur, Sounddesign und visuelle Effekte (SFX) als Ergänzung zur Animation.<br></i></li>
+        <li><strong>Interaktive Erlebnisse:</strong><br>
+            <i>Virtuelle Rundgänge mithilfe 360°-Panoramen oder Vergleichsslider ermöglichen 
+            immersive Präsentationen, die Raum und Perspektive neu definieren.<br></i></li>
+      </ul>
     </div>
   </div>
 </section>
@@ -102,6 +133,12 @@ canvas#sequence {
     <div class="content">
       <h2>Contact</h2>
       <p>Placeholder for contact details.</p>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="footerContent" id="footerContent">
+    <a href="#">Datenschutz</a>
+    <a href="#">Impressum</a>
     </div>
   </div>
 </section>
@@ -192,5 +229,3 @@ hamburger.addEventListener("click", () => navLinks.classList.toggle("show"));
 
 </body>
 </html>
-
-
