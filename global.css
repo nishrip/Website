@@ -64,3 +64,23 @@ nav .hamburger:active div{background:#a22a45;}
   nav .nav-links a:hover{background:#d33a57;color:#fff;}
   nav .nav-links a:active{background:#a22a45;}
 }
+
+section .footer{
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 1rem 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  box-shadow:0 4px 8px 8px rgba(0,0,0,.2),0 6px 20px 20px rgba(0,0,0,.19);
+  z-index: 10;
+}
+
+section .footerContent{display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+section .footerContent a{color:#fff;text-decoration:none;font-weight:bold;user-select:none;text-shadow:0 0 3px rgba(8,0,0,.47);transition:transform .2s,color .2s;}
+section .footerContent a:hover{color:#d33a57; transform:scale(1.1);}
+section .footerContent a:active{transform:scale(1);}
