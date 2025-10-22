@@ -19,7 +19,6 @@ section {
   width: 100vw;
   background: rgba(0, 0, 0, 0);
   border-radius: 0;
-  box-shadow: none;
   scroll-snap-align: center;
 }
 
@@ -39,6 +38,7 @@ section .content {
   padding: 2rem;
   color: #ffffff;
   background-color: rgba(0, 0, 0, 0.54);
+  box-shadow: 5px 10px 18px #000000;
   border-radius: 20px;
   text-align: center;
   /*box-shadow: 0 0 25px yellow;*/
@@ -127,7 +127,7 @@ section .content {
   border-radius: 10px;
 }
 
-/* Close Button */
+/* Close Button 
 .close-btn {
   position: absolute;
   top: 20px;
@@ -139,7 +139,7 @@ section .content {
   cursor: pointer;
   z-index: 10;
   line-height: 1;
-}
+}*/
 
 /* Fullscreen Arrows */
 .fullscreen .arrow {
@@ -245,6 +245,13 @@ section .content {
   cursor: pointer;
   z-index: 10;
 }
+.overlay-close:hover{
+  scale: 1.05;
+}
+.overlay-close:active{
+  scale: 0.95;
+}
+
 
 /* Panorama Overlay */
 #panoViewFullInner {
@@ -264,6 +271,15 @@ section .content {
   pointer-events: none;
   z-index: 20;
   transition: opacity 0.3s ease;
+}
+#Symbol {
+  max-height: 512px;
+  width: 80vw;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto; /* centers horizontally */
+  vertical-align: middle;
+  transition: transform 0.2s ease, opacity 0.3s ease;
 }
 
 /* ---------- Responsive Adjustments ---------- */

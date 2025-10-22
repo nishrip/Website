@@ -4,7 +4,7 @@ html,body{
   margin:0;
   padding:0;
   background:#000;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Lucida Sans', sans-serif;
   overflow-x:hidden;}
 
 /*canvas#sequence{
@@ -47,6 +47,36 @@ nav .hamburger{display:none;flex-direction:column;cursor:pointer;gap:5px;z-index
 nav .hamburger div{width:25px;height:3px;background:#fff;border-radius:2px;transition:background .2s,transform .2s;}
 nav .hamburger:hover div{background:#d33a57;}
 nav .hamburger:active div{background:#a22a45;}
+
+/* === LOGO ADJUSTMENTS === */
+nav .logo {
+  display: flex;
+  align-items: center;
+}
+
+#Logo {
+  height: 45px;              /* fits nicely with your 1rem navbar padding */
+  width: auto;
+  object-fit: contain;
+  vertical-align: middle;
+  transition: transform 0.2s ease, opacity 0.3s ease;
+}
+
+#Logo:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+#Logo:active {
+  transform: scale(0.95);
+  opacity: 0.9;
+}
+
+/* Slightly smaller on mobile */
+@media (max-width: 700px) {
+  #Logo {
+    height: 38px;
+  }
+}
 
 /* Mobile Menü */
 @media(max-width:700px){

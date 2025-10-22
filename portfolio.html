@@ -39,7 +39,7 @@
 
 <!-- Navigation -->
 <nav>
-  <div class="logo"><a href="index.html">LOGO</a></div>
+  <div class="logo"><a href="index.html"><img id="Logo" src="Logo2.png"></a></div>
   <div class="nav-links" id="navLinks">
     <a id="portfolio" href="portfolio.html">PORTFOLIO</a>
     <a href="#">PREISE</a>
@@ -131,7 +131,7 @@
 
 <!-- Panorama Overlay (full-screen) -->
 <div id="panoLoader" style="display: none;">
-  <p>360° Ansicht.<br> Die blauen Ringe dienen zum Positionswechsel</p>
+  <img id="Symbol" src="Logo2.png">
 </div>
 <div id="panoOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;z-index:150;">
   <button class="overlay-close" id="closePanoOverlay">×</button>
@@ -799,7 +799,9 @@ function createAndShowPanoramaViewer() {
     try { 
       panoViewer.setPanorama(panoramas[7]); 
       panoramas[7].addEventListener('load', () => {
-        hidePanoLoader();
+        setTimeout(() => {
+          hidePanoLoader();
+        }, 3000);
       });
     } catch (e) {}
     try { panoViewer.tweenControlCenter(new THREE.Vector3(10, 1, 1), 0); } catch(e){}

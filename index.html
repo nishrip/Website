@@ -44,11 +44,21 @@ section .content {
 
 /* === Responsives Verhalten === */
 @media (max-width: 768px) {
-  section .mask {
-    width: 100%;
+  section .mask{
+    border-radius: 20px;
+  }
+  section {
+    min-height: 100vh;
+    height: auto;
+    align-items: center;         /* keep vertical centering */
+    justify-content: center;
+    padding: 5rem 1rem 2rem; /* top padding for navbar */
   }
   section .content {
-    padding: 1.8rem 1.2rem;
+    width: 80vw;                 /* always 80% of viewport width */
+    max-width: none;
+    min-width: 0;
+    padding: 1.5rem 1rem;
   }
 }
 
@@ -70,7 +80,7 @@ section .content {
 
 <!-- Navigation -->
 <nav>
-  <div class="logo"><a href="index.html">LOGO</a></div>
+  <div class="logo"><a href="index.html"><img id="Logo" src="Logo2.png"></a></div>
   <div class="nav-links" id="navLinks">
     <a href="portfolio.html">PORTFOLIO</a>
     <a href="#">PREISE</a>
